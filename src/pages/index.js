@@ -56,8 +56,7 @@ export default function Page() {
       </div>
     </div>
 )}
-              <p className="text-custom text-left m-2">Find Modern Movies</p>
-
+        {/* 
         <div className={'flex-column justify-content-center align-items-center'}>
           <Image className="img-fluid"
             src={MovieMixerLogo}
@@ -66,15 +65,21 @@ export default function Page() {
             height={200}
           />
         </div>
-        <p className="text-custom m-2">Rediscover Classical Favorites</p>
-
-        <p className="text-custom m-2">Get Personalized Recommendations</p>
-
+    */}
+ 
+          <div className="d-flex justify-content-center align-items-center">
+            <Image className="img-fluid"
+              src={MovieMixerLogo}
+              alt="MovieMixer Logo"
+              width={200}
+              height={200}
+            />
+          </div>
+        
 
         <Link href="/dashboard" legacyBehavior><a className="btn btn-custom mt-4 m-2">Dashboard</a></Link>
         <Link href="/login" legacyBehavior><a className="btn btn-custom m-2">Login</a></Link>
         <Link href="/register" legacyBehavior><a className="btn btn-custom m-2">Sign Up-It's Free!</a></Link>
-        <p className="text-custom m-2">Save and Share with Your Network</p>
 
       <br></br>
       {/* <Link href="/about" legacyBehavior><a className="btn btn-info">About</a></Link> */}
