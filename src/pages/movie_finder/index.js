@@ -6,8 +6,7 @@ import authService from '../../services/auth.service';
 import jwtDecode from 'jwt-decode';
 import Header from '../../components/Header';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import QAMovieFinder from "../movie_finder";
-
+import MovieFinderForm from "../../components/MovieFinderForm";
 
 
 function MovieFinderPage() {
@@ -57,10 +56,8 @@ function MovieFinderPage() {
     </div>
   </nav>
 </div>
-            <Header />
     <div>
-      <h1>Find Your Perfect Movie</h1>
-      <QAMovieFinder />
+      <MovieFinderForm />
     </div>
     </div>
   );

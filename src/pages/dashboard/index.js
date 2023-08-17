@@ -21,7 +21,7 @@ function Page() {
             alignItems: 'center',
           }}>
 {/*-----------------------------Navbar------------------------------------------------------------------------------- */}
-<div className="d-flex w-100 align-items-center">
+<div className="d-flex w-100 align-items-center mb-5">
   <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
     <div className="container-fluid">
       <a className="navbar-brand" href="/">Movie Mixer</a>
