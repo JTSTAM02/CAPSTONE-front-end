@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import MovieMixerLogo from "../images/MovieMixerLogo.png";
 import 'bootstrap/dist/css/bootstrap.min.css';
+
 import { useState } from "react";
 import axios from "axios";
 
@@ -56,16 +57,6 @@ export default function Page() {
       </div>
     </div>
 )}
-        {/* 
-        <div className={'flex-column justify-content-center align-items-center'}>
-          <Image className="img-fluid"
-            src={MovieMixerLogo}
-            alt="MovieMixer Logo"
-            width={200}
-            height={200}
-          />
-        </div>
-    */}
  
           <div className="d-flex justify-content-center align-items-center">
             <Image className="img-fluid"
@@ -82,15 +73,12 @@ export default function Page() {
         <Link href="/register" legacyBehavior><a className="btn btn-custom m-2">Sign Up-It's Free!</a></Link>
 
       <br></br>
-      {/* <Link href="/about" legacyBehavior><a className="btn btn-info">About</a></Link> */}
     <style jsx>
       {`.btn-custom{
         background-color: #1F5D57;
         color: #CBB26A;
       }
-      .text-left{
-        text-align:left
-      }
+      
       .text-custom {
         color: #CBB26A;
         font-size: 18px;
@@ -114,8 +102,8 @@ export default function Page() {
         border-radius: 5px;
         box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
         display: flex;
-        flex-direction: column; /* Display the content in a column layout */
-        align-items: center; /* Center content horizontally */
+        flex-direction: column;
+        align-items: center;
       }
   
       .modal-header {

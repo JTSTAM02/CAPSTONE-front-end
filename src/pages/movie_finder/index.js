@@ -1,12 +1,10 @@
 import Link from "next/link";
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react'
-import { useGlobalState } from '../../context/GlobalState';
-import authService from '../../services/auth.service';
-import jwtDecode from 'jwt-decode';
 import Header from '../../components/Header';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import MovieFinderForm from "../../components/MovieFinderForm";
+// import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+
 
 
 function MovieFinderPage() {
@@ -23,7 +21,7 @@ function MovieFinderPage() {
           }}>
 {/*-----------------------------Navbar------------------------------------------------------------------------------- */}
 <div className="d-flex align-items-center">
-  <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
+  <nav className="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
     <div className="container-fluid">
       <a className="navbar-brand" href="/">Movie Mixer</a>
       <button
@@ -38,7 +36,7 @@ function MovieFinderPage() {
         <span className="navbar-toggler-icon"></span>
       </button>
       <div className="collapse navbar-collapse" id="navbarNav">
-        <ul className="navbar-nav">
+        <ul className="navbar-nav ml-auto">
           <li className="nav-item">
             <a className="nav-link" href="/">Home</a>
           </li>
@@ -56,8 +54,9 @@ function MovieFinderPage() {
     </div>
   </nav>
 </div>
+            <Header />
     <div>
-      <MovieFinderForm />
+      <Link href="/form" />
     </div>
     </div>
   );

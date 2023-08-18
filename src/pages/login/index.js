@@ -1,3 +1,5 @@
+"use client"
+
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react'
 import { useGlobalState } from '../../context/GlobalState';
@@ -5,30 +7,48 @@ import authService from '../../services/auth.service';
 import jwtDecode from 'jwt-decode';
 import Header from '../../components/Header';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import Navigation from '../../components/Navigation';
+
 
 function Page() {
     const router = useRouter();
 
-    const [ state, dispatch ] = useGlobalState();
-
+    const {state, dispatch} = useGlobalState();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
-    function handleLogin(e) {
+    const handleLogin = async (e) => {
         e.preventDefault();
-        // console.log(email.current.value , password.current.value , "HERE")
+        const username = email;
         authService
-            .login(email, password)
+            .login(email, password, username)
             .then(async (resp) => {
                 console.log(resp)
-                let data = jwtDecode(resp.access)
+                let data = jwtDecode(resp.access);
                 await dispatch({
                     currentUserToken: resp.access,
                     currentUser: data
-                })
-                router.push('/dashboard')
+                });
+                router.push('/dashboard');
             });
+    
     }
+
+    // function handleLogin(e) {
+    //     e.preventDefault();
+    //     // console.log(email.current.value , password.current.value , "HERE")
+    //     authService
+    //         .login(email, password)
+    //         .then(async (resp) => {
+    //             console.log(resp)
+    //             let data = jwtDecode(resp.access)
+    //             await dispatch({
+    //                 currentUserToken: resp.access,
+    //                 currentUser: data
+    //             })
+    //             router.push('/dashboard')
+    //         });
+    // }
 
 
     return (
@@ -42,42 +62,8 @@ function Page() {
             justifyContent: 'center',
             alignItems: 'center',
           }}>
-{/*-----------------------------Navbar------------------------------------------------------------------------------- */}
-<div className="d-flex w-100 align-items-center">
-  <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div className="container-fluid">
-      <a className="navbar-brand" href="/">Movie Mixer</a>
-      <button
-        className="navbar-toggler"
-        type="button"
-        data-bs-toggle="collapse"
-        data-bs-target="#navbarNav"
-        aria-controls="navbarNav"
-        aria-expanded="false"
-        aria-label="Toggle navigation"
-      >
-        <span className="navbar-toggler-icon"></span>
-      </button>
-      <div className="collapse navbar-collapse" id="navbarNav">
-        <ul className="navbar-nav">
-          <li className="nav-item">
-            <a className="nav-link" href="/">Home</a>
-          </li>
-          <li className="nav-item">
-            <a className="nav-link" href="/login">Login</a>
-          </li>
-          <li className="nav-item">
-            <a className="nav-link" href="/register">Sign Up</a>
-          </li>
-          <li className="nav-item">
-            <a className="nav-link" href="/dashboard">Dashboard</a>
-          </li>
-        </ul>
-      </div>
-    </div>
-  </nav>
-</div>
             <Header />
+            <Navigation />
             <form onSubmit={handleLogin} className= "max-w-md mx-auto"
                 >
                     <div className='row m-2 text-white'>
