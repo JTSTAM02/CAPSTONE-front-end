@@ -1,9 +1,7 @@
 import Link from "next/link";
 import React, { useState } from 'react'
 import Header from '../../components/Header';
-import 'bootstrap/dist/css/bootstrap.min.css';
 import Navigation from "../../components/Navigation";
-// import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
 function Page() {
     return (

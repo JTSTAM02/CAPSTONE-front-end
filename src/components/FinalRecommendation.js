@@ -6,7 +6,7 @@ const FinalRecommendation = ({ recommendedMovie }) => {
       <h2>Your Recommended Movie:</h2>
       <p>Title: {recommendedMovie.title}</p>
       <p>Genre: {recommendedMovie.genre}</p>
-      {/* Include other movie data here */}
+      <p>{recommendedMovie.description}</p>
     </div>
   );
 };
