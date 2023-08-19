@@ -2,14 +2,15 @@ import Link from "next/link";
 import Image from "next/image";
 import MovieMixerLogo from "../images/MovieMixerLogo.png";
 import 'bootstrap/dist/css/bootstrap.min.css';
-
 import { useState } from "react";
 import axios from "axios";
 
 export default function Page() {
   const [randomMovie, setRandomMovie] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false); // Add this state
-
+  const languageMapping = {
+    'en-US': 'English',
+  };
 
   const getRandomMovie = () => {
     fetchRandomMovie();
@@ -20,13 +21,14 @@ export default function Page() {
       .then(response => {
         const results = response.data.results;
         const randomIndex = Math.floor(Math.random() * results.length);
-        setIsModalVisible(true); // Show the modal when random movie is fetched
+        setIsModalVisible(true);
         setRandomMovie(results[randomIndex]);
       })
       .catch(error => {
         console.error(error);
       });
   };
+
 
   return (
     <div style={{
@@ -48,9 +50,32 @@ export default function Page() {
               <div className="modal-header">
               <h2>Your Random Movie Is:</h2>
           </div>
-        <div className="modal-body">
-          <p>{randomMovie.titleText.text}</p>
-        </div>
+          <div className="modal-body">
+  <p className="text-center mb-4" style={{ fontSize: "2rem", fontWeight: 'bolder' }}>{randomMovie.titleText.text}</p>
+  
+  {randomMovie.releaseYear && (
+    <div>
+    <p className="mb-2">Year of Release: {randomMovie.releaseYear.year}</p>
+    <p>Genre: {randomMovie.genres.genres[0].text}</p>
+    <p>Runtime: {Math.floor(randomMovie.runtime.seconds / 3600)} hours {Math.floor((randomMovie.runtime.seconds % 3600) / 60)} minutes</p>
+    </div>
+  )}
+  
+  {randomMovie.primaryImage && (
+    <div className="d-flex justify-content-center mb-3">
+      <img src={randomMovie.primaryImage.url} alt="Movie Poster" className="img-fluid" style={{ maxWidth: '200px', height: 'auto' }} />
+    </div>
+  )}
+  
+  {randomMovie.primaryImage && randomMovie.primaryImage.caption && (
+    <div>
+    <p className="text-center italicized">{randomMovie.primaryImage.caption.plainText}</p>
+    <p>Description: {randomMovie.plot.plotText.plainText}</p>
+    <p>Language: {languageMapping[randomMovie.plot.language.id]}</p>
+    </div>
+  )}
+</div>
+
         <div className="modal-footer">
         <button onClick={() => setIsModalVisible(false)}>Close</button>
         </div>
@@ -87,7 +112,7 @@ export default function Page() {
       .movie-modal {
         position: fixed;
         top: 0;
-        left: 0;
+        left: 0;        
         width: 100%;
         height: 100%;
         background-color: rgba(0, 0, 0, 0.5);

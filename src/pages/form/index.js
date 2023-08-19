@@ -1,107 +1,86 @@
 import React, { useState, useEffect } from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css';
 import axios from 'axios';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import Navigation from '../../components/Navigation';
-import FinalRecommendation from '../../components/FinalRecommendation';
 import Link from 'next/link';
 
 const QAForm = () => {
   const [showRandomMovie, setShowRandomMovie] = useState(false);
-  const [randomMovie, setRandomMovie] = useState(null);  
-  const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [isFirstSlide, setIsFirstSlide] = useState(true);
-  const [selectedAnswer, setSelectedAnswer] = useState('');
-  const [userAnswers, setUserAnswers] = useState([]);
-  const [recommendedMovie, setRecommendedMovie] = useState(null);
-  const [showRecommendation, setShowRecommendation] = useState(false);
-  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [randomMovie, setRandomMovie] = useState(null);
+ const [currentQuestion, setCurrentQuestion] = useState(0);
+ const [userAnswers, setUserAnswers] = useState([]);
+ const [questions, setQuestions] = useState([
+   "What genre of movie would you like to watch?",
+   "What decade of movies would you like to watch?",
+//    "About how long do you feel like watching a movie?",
+//    "Do you prefer to watch movies that are highly rated by other app users or movie critics?",
+//    "Do you want to watch a movie that has won any special awards?",
+ ]);
 
+ const getRandomMovie = () => {
+    if (userAnswers.length === questions.length) {
+      const url = "http://localhost:8000/api/get_random_movie/";
+      const queryParams = {
+        genre: userAnswers[0],
+        startYear: userAnswers[1],
+        endYear: parseInt(userAnswers[1]) + 9, // End year is start year + 9
+      };
 
-  useEffect(() => {
-    const storedFirstSlide = localStorage.getItem("isFirstSlide");
-    if (storedFirstSlide !== null) {
-      setIsFirstSlide(JSON.parse(storedFirstSlide));
+      axios.get(url, { params: queryParams })
+        .then(response => {
+          const results = response.data.results;
+          if (results.length > 0) {
+            const randomIndex = Math.floor(Math.random() * results.length);
+            setRandomMovie(results[randomIndex]);
+            setShowRandomMovie(true);
+          } else {
+            console.log("No movies found for the selected genre and decade.");
+          }
+        })
+        .catch(error => {
+          console.error(error);
+        });
     }
-  }, []);
-
-  const questions = [
-    "All Questions are optional. Feel free to answer all of them, or as many as you want. Once you have chosen your answer, please click Next.",
-    "What kind of mood are you in?",
-    "What genre of movie would you like to watch?",
-    "What decade of movie would you like to watch?",
-    "About How long do you want to watch a movie?",
-    "What rating movie would you like to see?",
-    "Finally, do you want to watch movies that have won any special awards?"
-  ];
-
-  const answers = [
-    [],
-    ["Happy", "Sad", "Excited", "Calm", "Bored"],
-    ["Action", "Comedy", "Drama", "Sci-Fi", "Superhero", "Horror"],
-    ["1950s", "1960s", "1970s", "1980s", "1990s", "2000s", "2010s", "2020s"],
-    ["Less than 90 minutes", "About 2 hours", "2-3 hours","Longer than 3 Hours", "No preference"],
-    ["G", "PG", "PG-13", "R"],
-    ["Yes", "No", "No Preference"]
-  ];
-
-
-  const fetchRandomMovie = () => {
-    axios.get('http://localhost:8000/api/get_random_movie/')
-      .then(response => {
-        const results = response.data.results;
-        const randomIndex = Math.floor(Math.random() * results.length);
-        setIsModalVisible(true); // Show the modal when random movie is fetched
-        setRandomMovie(results[randomIndex]);
-        setShowRandomMovie(true);
-      })
-      .catch(error => {
-        console.error(error);
-      });
   };
 
-  const handleAnswerClick = (answer) => {
-    setSelectedAnswer(answer);
-  };
+//   const getRandomMovie = () => {
+//     const selectedAnswer = userAnswers[currentQuestion];
 
-  useEffect(() => {
-    if (selectedAnswer !== '') {
-      handleNextQuestion();
-    }
-  }, [selectedAnswer]);
+//     if (selectedAnswer) {
 
-  const handleNextQuestion = async () => {
+
+//     //   axios.get(`http://localhost:8000/api/get_random_movie/?genre=${selectedGenre}`)
+//         const url = `http://localhost:8000/api/get_random_movie/`;
+//         const querystring = {
+//             genre: selectedAnswer,
+//             startYear: selectedAnswer,
+//             endYear: selectedAnswer,
+//         };
+
+//         axios.get(url, { params: querystring})
+//         .then(response => {
+//           const results = response.data.results;
+//           if (results.length > 0) {
+//             const randomIndex = Math.floor(Math.random() * results.length);
+//             setRandomMovie(results[randomIndex]);
+//             setShowRandomMovie(true);
+//           } else {
+//             console.log("No movies found for the selected genre.");
+//           }
+//         })
+//         .catch(error => {
+//           console.error(error);
+//         });
+//     }
+//   };
+
+  const handleNextQuestion = () => {
     if (currentQuestion < questions.length - 1) {
-      setUserAnswers([...userAnswers, selectedAnswer]);
-      setSelectedAnswer('');
       setCurrentQuestion(currentQuestion + 1);
     } else {
-      setCurrentQuestion(0);
-      setUserAnswers([]);
-    const response = await axios.post('api/get-movie-recommendation', {answers: userAnswers});
-    const recommendedMovie = response.data.recommendedMovie;
-
-    setRecommendedMovie(recommendedMovie);
-    setShowRecommendation(true);
+      // All questions answered, proceed to get random movie
+      getRandomMovie();
     }
-  };
-
-  const handleGetYourMovie = () => {
-    setShowRecommendation(true);
-    setIsModalVisible(true)
-  };
-
-
-const getRandomMovie = () => {
-    axios.get('http://localhost:8000/api/get_random_movie/')
-      .then(response => {
-        const results = response.data.results;
-        const randomIndex = Math.floor(Math.random() * results.length);
-        setRandomMovie(results[randomIndex]);
-        setShowRandomMovie(true);
-      })
-      .catch(error => {
-        console.error(error);
-      });
   };
 
   return (
@@ -118,64 +97,51 @@ const getRandomMovie = () => {
     }}>
 
       <Navigation />
+    
+      <div>
+        <h2>{questions[currentQuestion]}</h2>
+        {currentQuestion === 0 && (
+          <select value={userAnswers[currentQuestion] || ''} onChange={event => {
+            const newAnswers = [...userAnswers];
+            newAnswers[currentQuestion] = event.target.value;
+            setUserAnswers(newAnswers);
+          }}>
+            <option value="Action">Action</option>
+            <option value="Comedy">Comedy</option>
+            <option value="Drama">Drama</option>
+            <option value="Family">Family</option>
+            <option value="Horror">Horror</option>
+          </select>
+        )}
 
-      <div className="container-fluid">
-        <div className="card" style={{
-          padding: "10px",
-          textAlign: 'center',
-          backgroundColor: '#1F5D57',
-          color: '#CBB26A'
-        }}>
-            <h2 className="card-title">{questions[currentQuestion]}</h2>
-            <div className="answers" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            {answers[currentQuestion].map((answer, index) => (
-                    <button style={{ width: '200px', padding: "5px", margin: "4px", backgroundColor: '#CBB26A' }}
-                    key={index}
-                    className={`answer-button ${selectedAnswer === answer ? 'selected' : ''}`}
-                    onClick={() => handleAnswerClick(answer)}
-                  >
-                    {answer}
-                  </button>
-                ))}
-                </div>
-          <h2 className="card-title">Your Movie Recommendations</h2>
-          <p>Answer the questions to get a random movie recommendation.</p>
-          <button
-            className="btn-circle"
-            style={{
-              backgroundColor: '#CBB26A',
-              width: '200px',
-              padding: '10px',
-              margin: '0 auto',
-              display: 'block',
-              border: "solid #CBB26A"
-            }}
-            onClick={getRandomMovie}
-          >
-            Get Random Movie
-          </button>
-        </div>
-      </div>
+        {currentQuestion === 1 && (
+            <select value={userAnswers[currentQuestion] || ""} onChange={event => {
+                const newAnswers = [...userAnswers];
+                newAnswers[currentQuestion] = event.target.value;
+                setUserAnswers(newAnswers);
+              }}>
+                <option value="1970">1970's</option>
+                <option value="1980">1980's</option>
+                <option value="1990">1990's</option>
+                <option value="2000">2000's</option>
+                <option value="2010">2010's</option>
+                <option value="2020">2020's</option>
+              </select>
+        )}
 
-      {showRandomMovie && randomMovie && (
-        <div className="movie-info">
-          <div className="modal-content" style={{ display: 'flex', flexDirection: "column", alignItems: 'center', justifyContent: 'center'}}>
-            <div className="modal-header">
-              <h2>Your Random Movie Is:</h2>
-            </div>
-            <div className="modal-body" style={{ display: 'flex', flexDirection: "column", alignItems: 'center', justifyContent: 'center'}}>
-              <p>{randomMovie.titleText.text}</p>
-              <p>Year of Release: {randomMovie.releaseYear.year}</p>
-              <p>{randomMovie.info}</p> 
-            <img src={randomMovie.primaryImage.url} alt="Movie Poster" style={{maxWidth: '200px', maxHeight: '200px'}}></img>
+        <button onClick={handleNextQuestion}>
+          {currentQuestion < questions.length - 1 ? "Next" : "Get Random Movie"}
+        </button>
 
-            </div>
-            <div className="modal-footer" style={{ display: 'flex', flexDirection: "column", alignItems: 'center', justifyContent: 'center'}}>
-              <button style={{ margin: '10px'}} onClick={() => setShowRandomMovie(false)}>Close</button>
-            </div>
+        {showRandomMovie && randomMovie && (
+          <div className="movie-info">
+            <h3>Your Random Movie Is:</h3>
+            <p>{randomMovie.titleText.text}</p>
+            <p>Year of Release: {randomMovie.releaseYear.year}</p>
+            <img src={randomMovie.primaryImage.url} alt="Movie Poster" style={{ maxWidth: '200px', maxHeight: '200px' }} />
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };
@@ -185,24 +151,228 @@ export default QAForm;
 
 
 
+    {/* <div>
+      <h2>What genre of movie would you like to watch?</h2>
+      <select value={selectedGenre} onChange={event => setSelectedGenre(event.target.value)}>
+        <option value="">Select Genre</option>
+        <option value="Action">Action</option>
+        <option value="Comedy">Comedy</option>
+        <option value="Drama">Drama</option>
+        <option value="Family">Family</option>
+        <option value="Horror">Horror</option>
+      </select>
+
+      <input
+          type="number"
+          placeholder="Enter a decade (e.g., 1980)"
+          value={selectedDecade}
+          onChange={event => setSelectedDecade(event.target.value)}
+        />
+
+      <button onClick={getRandomMovie}>Get Random Movie</button>
+
+      {showRandomMovie && randomMovie && (
+        <div className="movie-info">
+          <h3>Your Random Movie Is:</h3>
+          <p>{randomMovie.titleText.text}</p>
+          <p>Year of Release: {randomMovie.releaseYear.year}</p>
+          <img src={randomMovie.primaryImage.url} alt="Movie Poster" style={{ maxWidth: '200px', maxHeight: '200px' }} />
+        </div>
+      )}
+    </div>
+    </div>
+  );
+};
+
+export default QAForm; */}
 
 
 
+//   const [showRandomMovie, setShowRandomMovie] = useState(false);
+//   const [randomMovie, setRandomMovie] = useState(null);  
+//   const [currentQuestion, setCurrentQuestion] = useState(0);
+//   const [isFirstSlide, setIsFirstSlide] = useState(true);
+//   const [selectedAnswer, setSelectedAnswer] = useState('');
+//   const [userAnswers, setUserAnswers] = useState([]);
+//   const [recommendedMovie, setRecommendedMovie] = useState(null);
+//   const [showRecommendation, setShowRecommendation] = useState(false);
+//   const [isModalVisible, setIsModalVisible] = useState(false);
+//   const [questionsAnswered, setQuestionsAnswered] = useState(false);
+//   const [loadingRandomMovie, setLoadingRandomMovie] = useState(false);
+//   const [selectedGenre, setSelectedGenre] = useState('')
+
+
+//   useEffect(() => {
+//     const storedFirstSlide = localStorage.getItem("isFirstSlide");
+//     if (storedFirstSlide !== null) {
+//       setIsFirstSlide(JSON.parse(storedFirstSlide));
+//     }
+//   }, []);
+
+//   const questions = [
+//     "All Questions are optional. Feel free to answer all of them, or as many as you want. Once you have chosen your answer, please click Next.",
+//     "What genre of movie would you like to watch?",
+//     "What decade of movie would you like to watch?",
+//     "About how long do you want to watch a movie?",
+//     "Do you prefer to see movies that are highly ranked by other app users and movie critics?",
+//     "Finally, do you want to watch movies that have won any special awards?"
+//   ];
+
+//   const answers = [
+//     [],
+//     ["Action", "Animation", "Comedy", "Crime", "Drama", "Family", "Horror", "Sport", "Western"],
+//     ["1950s", "1960s", "1970s", "1980s", "1990s", "2000s", "2010s", "2020s"],
+//     ["Less than 90 minutes", "About 2 hours", "2-3 hours","Longer than 3 Hours", "No preference"],
+//     ["Yes", "No", "It doesn't matter"]
+//     ["Sure!", "No", "No Preference"]
+//   ];
+
+
+//   const fetchRandomMovie = () => {
+//     axios.get('http://localhost:8000/api/get_random_movie/')
+//       .then(response => {
+//         const results = response.data.results;
+//         const randomIndex = Math.floor(Math.random() * results.length);
+//         setIsModalVisible(true); // Show the modal when random movie is fetched
+//         setRandomMovie(results[randomIndex]);
+//         setShowRandomMovie(true);
+//       })
+//       .catch(error => {
+//         console.error(error);
+//       });
+//   };
+
+//   const handleAnswerClick = (answer) => {
+//     setSelectedAnswer(answer);
+//   };
+
+//   useEffect(() => {
+//     if (selectedAnswer !== '') {
+//       handleNextQuestion();
+//     }
+//   }, [selectedAnswer]);
+
+//   const handleNextQuestion = async () => {
+//     if (currentQuestion < questions.length - 1) {
+//       setUserAnswers([...userAnswers, selectedAnswer]);
+//       setSelectedAnswer('');
+//       setCurrentQuestion(currentQuestion + 1);
+//     } else {
+
+//         setUserAnswers([...userAnswers, selectedAnswer]); // Update userAnswers
+//         setSelectedAnswer('');
+//         setCurrentQuestion(0);
+//         setQuestionsAnswered(true); // Mark all questions answered
+//         setLoadingRandomMovie(true);
+//         fetchRandomMovie();
+//     //   setCurrentQuestion(0);
+//     //   setUserAnswers([]);
+//     // const response = await axios.post('api/get-movie-recommendation', {answers: userAnswers});
+//     // const recommendedMovie = response.data.recommendedMovie;
+//     // setRecommendedMovie(recommendedMovie);
+//     // setShowRecommendation(true);
+//     }
+//   };
+
+//   const handleGetYourMovie = () => {
+//     setShowRecommendation(true);
+//     setIsModalVisible(true)
+//   };
+
+
+// const getRandomMovie = () => {
+//     axios.get('http://localhost:8000/api/get_random_movie/')
+//       .then(response => {
+//         const results = response.data.results;
+//         const randomIndex = Math.floor(Math.random() * results.length);
+//         setRandomMovie(results[randomIndex]);
+//         setShowRandomMovie(true);
+//       })
+//       .catch(error => {
+//         console.error(error);
+//       });
+//   };
+
+//   return (
+//     <div style={{
+//       backgroundImage: 'url("https://media.istockphoto.com/id/177274717/photo/abstract-multimedia-background-composed-of-many-images-with-copy.jpg?s=612x612&w=0&k=20&c=V0G4Z-glNKzuI1ZvQMObi3_0PuxUHOqzur7d5LXB29U=")',
+//       backgroundSize: 'cover',
+//       backgroundPosition: 'center',
+//       minHeight: '100vh',
+//       display: 'flex',
+//       flexDirection: 'column',
+//       justifyContent: 'center',
+//       alignItems: 'center',
+//       color: "white",
+//     }}>
+
+//       <Navigation />
+
+//       <div className="container-fluid ${showMovieData ? 'show-movie-info' : ''}">
+//         <div className="card" style={{
+//           padding: "10px",
+//           textAlign: 'center',
+//           backgroundColor: '#1F5D57',
+//           color: '#CBB26A'
+//         }}>
+
+// {questionsAnswered && showRandomMovie && randomMovie ? (
+//             <div className="movie-info">
+//               <div className="modal-content" style={{ display: 'flex', flexDirection: "column", alignItems: 'center', justifyContent: 'center'}}>
+//                 <div className="modal-header">
+//                   <h2>Your Random Movie Is:</h2>
+//                 </div>
+//                 <div className="modal-body" style={{ display: 'flex', flexDirection: "column", alignItems: 'center', justifyContent: 'center'}}>
+//                   <p>{randomMovie.titleText.text}</p>
+//                   <p>Year of Release: {randomMovie.releaseYear.year}</p>
+//                   <img src={randomMovie.primaryImage.url} alt="Movie Poster" style={{maxWidth: '200px', maxHeight: '200px'}}></img>
+//                 </div>
+//                 <div className="modal-footer" style={{ display: 'flex', flexDirection: "column", alignItems: 'center', justifyContent: 'center'}}>
+//                   <button style={{ margin: '10px'}} onClick={() => setShowRandomMovie(false)}>Close</button>
+//                 </div>
+//               </div>
+//             </div>
+//           ) : (
+//             <div>
+//               <h2 className="card-title">{questions[currentQuestion]}</h2>
+//               <div className="answers" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+//                 {answers[currentQuestion].map((answer, index) => (
+//                   <button style={{ width: '200px', padding: "5px", margin: "4px", backgroundColor: '#CBB26A' }}
+//                     key={index}
+//                     className={`answer-button ${selectedAnswer === answer ? 'selected' : ''}`}
+//                     onClick={() => handleAnswerClick(answer)}
+//                   >
+//                     {answer}
+//                   </button>
+//                 ))}
+//               </div>
+//               <button
+//                 className="btn-circle"
+//                 style={{
+//                   backgroundColor: '#CBB26A',
+//                   width: '200px',
+//                   padding: '10px',
+//                   margin: '0 auto',
+//                   display: 'block',
+//                   border: "solid #CBB26A"
+//                 }}
+//                 onClick={currentQuestion === questions.length - 1 ? getRandomMovie : handleNextQuestion}
+//               >
+//                 {currentQuestion === questions.length - 1 ? "Get Random Movie": 'Next'}
+//               </button>
+//             </div>
+//           )}
+//       </div>
+//     </div>
+//   </div>
+// );}
+
+// export default QAForm;
 
 
 
-
-
-
-
-
-
-  // First Try-------------------------------------------------------------------------------------
-
-// <div className="container-fluid">
-//         <div className="card" style={{ padding: "10px", textAlign: 'center', backgroundColor: '#1F5D57', color: '#CBB26A' }}>
-//           <h2 className="card-title">{questions[currentQuestion]}</h2>
-//           <div className="answers" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+//             {/* <h2 className="card-title">{questions[currentQuestion]}</h2>
+//             <div className="answers" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
 //             {answers[currentQuestion].map((answer, index) => (
 //                     <button style={{ width: '200px', padding: "5px", margin: "4px", backgroundColor: '#CBB26A' }}
 //                     key={index}
@@ -211,70 +381,143 @@ export default QAForm;
 //                   >
 //                     {answer}
 //                   </button>
-//             ))}
-//           </div>
-//           <br />
-//           <button className="btn-circle"
-//             style={{ backgroundColor: '#CBB26A', width: '120px', padding: '10px', margin: '0 auto', display: 'block', border: "solid #CBB26A" }}
-//             onClick={handleNextQuestion}>
-//             {currentQuestion === questions.length - 1 ? "Get Your Movie" : "Next"}
+//                 ))}
+//                 </div>
+//           <h2 className="card-title">Your Movie Recommendations</h2>
+//           <p>Answer the questions to get a random movie recommendation.</p>
+//           <button
+//             className="btn-circle"
+//             style={{
+//               backgroundColor: '#CBB26A',
+//               width: '200px',
+//               padding: '10px',
+//               margin: '0 auto',
+//               display: 'block',
+//               border: "solid #CBB26A"
+//             }}
+//             onClick={currentQuestion === questions.length - 1 ? getRandomMovie : handleNextQuestion}
+//           >
+//             {currentQuestion === questions.length - 1 ? "Get Random Movie": 'Next'}
 //           </button>
 //         </div>
 //       </div>
 
-//       {isModalVisible && showRecommendation && recommendedMovie && (
+//       {showRandomMovie && randomMovie && (
 //         <div className="movie-info">
-//           <div className="modal-content">
+//           <div className="modal-content" style={{ display: 'flex', flexDirection: "column", alignItems: 'center', justifyContent: 'center'}}>
 //             <div className="modal-header">
 //               <h2>Your Random Movie Is:</h2>
 //             </div>
-//             <div className="modal-body">
+//             <div className="modal-body" style={{ display: 'flex', flexDirection: "column", alignItems: 'center', justifyContent: 'center'}}>
 //               <p>{randomMovie.titleText.text}</p>
+//               <p>Year of Release: {randomMovie.releaseYear.year}</p>
+//             <img src={randomMovie.primaryImage.url} alt="Movie Poster" style={{maxWidth: '200px', maxHeight: '200px'}}></img>
+
 //             </div>
-//             <div className="modal-footer">
-//               <button onClick={() => setIsModalVisible(false)}>Close</button>
+//             <div className="modal-footer" style={{ display: 'flex', flexDirection: "column", alignItems: 'center', justifyContent: 'center'}}>
+//               <button style={{ margin: '10px'}} onClick={() => setShowRandomMovie(false)}>Close</button>
 //             </div>
 //           </div>
 //         </div>
 //       )}
-
-
-//       {/* <div className="container-fluid">
-//         <div className="card" style={{ padding: "10px", textAlign: 'center', backgroundColor: '#1F5D57',
-//         color: '#CBB26A' }}>
-//           <h2 className="card-title">{questions[currentQuestion]}</h2>
-//           <div className="answers" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
-//             {answers[currentQuestion].map((answer, index) => (
-//               <button style={{ width: '200px', padding: "5px", margin: "4px", backgroundColor: '#CBB26A' }}
-//                 key={index}
-//                 className={`answer-button ${selectedAnswer === answer ? 'selected' : ''}`}
-//                 onClick={() => handleAnswerClick(answer)}
-//               >
-//                 {answer}
-//               </button>
-//             ))}
-//           </div>
-//           <br />
-//           <button className="btn-circle"
-//           style={{ backgroundColor: '#CBB26A', width: '120px',
-//           padding: '10px',
-//           margin: '0 auto',
-//           display: 'block',
-//           border: "solid #CBB26A",
-//         }} */}
-//           {/* onClick={handleNextQuestion}>
-//             {currentQuestion === questions.length - 1 ? "Restart" : "Next"}
-//           </button>
-//         </div>
-//       </div>
-//       {showRecommendation && recommendedMovie && (
-//         <div> */}
-//         {/* <FinalRecommendation recommendedMovie={recommendedMovie} />
-//         <button className='btn btn-primary' onClick={handleGetYourMovie}>Get Your Movie</button>
-//         </div>
-//       )}
-//     </div> */}
 //     </div>
 //   );
-// };
+// }; */}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//   // First Try-------------------------------------------------------------------------------------
+
+// // <div className="container-fluid">
+// //         <div className="card" style={{ padding: "10px", textAlign: 'center', backgroundColor: '#1F5D57', color: '#CBB26A' }}>
+// //           <h2 className="card-title">{questions[currentQuestion]}</h2>
+// //           <div className="answers" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+// //             {answers[currentQuestion].map((answer, index) => (
+// //                     <button style={{ width: '200px', padding: "5px", margin: "4px", backgroundColor: '#CBB26A' }}
+// //                     key={index}
+// //                     className={`answer-button ${selectedAnswer === answer ? 'selected' : ''}`}
+// //                     onClick={() => handleAnswerClick(answer)}
+// //                   >
+// //                     {answer}
+// //                   </button>
+// //             ))}
+// //           </div>
+// //           <br />
+// //           <button className="btn-circle"
+// //             style={{ backgroundColor: '#CBB26A', width: '120px', padding: '10px', margin: '0 auto', display: 'block', border: "solid #CBB26A" }}
+// //             onClick={handleNextQuestion}>
+// //             {currentQuestion === questions.length - 1 ? "Get Your Movie" : "Next"}
+// //           </button>
+// //         </div>
+// //       </div>
+
+// //       {isModalVisible && showRecommendation && recommendedMovie && (
+// //         <div className="movie-info">
+// //           <div className="modal-content">
+// //             <div className="modal-header">
+// //               <h2>Your Random Movie Is:</h2>
+// //             </div>
+// //             <div className="modal-body">
+// //               <p>{randomMovie.titleText.text}</p>
+// //             </div>
+// //             <div className="modal-footer">
+// //               <button onClick={() => setIsModalVisible(false)}>Close</button>
+// //             </div>
+// //           </div>
+// //         </div>
+// //       )}
+
+
+// //       {/* <div className="container-fluid">
+// //         <div className="card" style={{ padding: "10px", textAlign: 'center', backgroundColor: '#1F5D57',
+// //         color: '#CBB26A' }}>
+// //           <h2 className="card-title">{questions[currentQuestion]}</h2>
+// //           <div className="answers" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+// //             {answers[currentQuestion].map((answer, index) => (
+// //               <button style={{ width: '200px', padding: "5px", margin: "4px", backgroundColor: '#CBB26A' }}
+// //                 key={index}
+// //                 className={`answer-button ${selectedAnswer === answer ? 'selected' : ''}`}
+// //                 onClick={() => handleAnswerClick(answer)}
+// //               >
+// //                 {answer}
+// //               </button>
+// //             ))}
+// //           </div>
+// //           <br />
+// //           <button className="btn-circle"
+// //           style={{ backgroundColor: '#CBB26A', width: '120px',
+// //           padding: '10px',
+// //           margin: '0 auto',
+// //           display: 'block',
+// //           border: "solid #CBB26A",
+// //         }} */}
+// //           {/* onClick={handleNextQuestion}>
+// //             {currentQuestion === questions.length - 1 ? "Restart" : "Next"}
+// //           </button>
+// //         </div>
+// //       </div>
+// //       {showRecommendation && recommendedMovie && (
+// //         <div> */}
+// //         {/* <FinalRecommendation recommendedMovie={recommendedMovie} />
+// //         <button className='btn btn-primary' onClick={handleGetYourMovie}>Get Your Movie</button>
+// //         </div>
+// //       )}
+// //     </div> */}
+// //     </div>
+// //   );
+// // };
 
