@@ -2,58 +2,90 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Navigation from '../../components/Navigation';
-import Link from 'next/link';
 
 const QAForm = () => {
   const [showRandomMovie, setShowRandomMovie] = useState(false);
   const [randomMovie, setRandomMovie] = useState(null);
+  const [noMoviesFound, setNoMoviesFound] = useState(false);
  const [currentQuestion, setCurrentQuestion] = useState(0);
  const [userAnswers, setUserAnswers] = useState([]);
  const [selectedRuntime, setSelectedRuntime] = useState("");
  const [selectedRuntimeStart, setSelectedRuntimeStart] = useState("");
  const [selectedRuntimeEnd, setSelectedRuntimeEnd] = useState("");
+ const [selectedRatingPreference, setSelectedRatingPreference] = useState("");
+
  const [questions, setQuestions] = useState([
    "What genre of movie would you like to watch?",
    "What decade of movies would you like to watch?",
    "About how long do you feel like watching a movie?",
-//    "Do you prefer to watch movies that are highly rated by other app users or movie critics?",
+   "Do you prefer to watch movies that are highly rated by other app users or movie critics?",
 //    "Do you want to watch a movie that has won any special awards?",
  ]);
 
  const getRandomMovie = () => {
-    console.log("function called");
-    // if (userAnswers.length === questions.length) {
-      const url = "http://localhost:8000/api/get_random_movie/";
-      const queryParams = {
-        genre: userAnswers[0],
-        startYear: userAnswers[1],
-        endYear: parseInt(userAnswers[1]) + 9,
-      };
-      console.log('calling Axios');
-      axios.get(url, { params: queryParams })
+    const url = "http://localhost:8000/api/get_random_movie/";
+    const queryParams = {
+      genre: userAnswers[0],
+      startYear: userAnswers[1],
+      endYear: parseInt(userAnswers[1]) + 9,
+    };
+  
+    axios.get(url, { params: queryParams })
       .then(response => {
         const results = response.data.results;
-        console.log(results);
-
+  
         if (results.length > 0) {
           const filteredMovies = results.filter(movie => {
             const runtimeSeconds = movie.runtime.seconds;
             return runtimeSeconds >= selectedRuntimeStart && runtimeSeconds <= selectedRuntimeEnd;
           });
-          console.log(filteredMovies);
+  
           if (filteredMovies.length > 0) {
-            const randomIndex = Math.floor(Math.random() * filteredMovies.length);
-            setRandomMovie(filteredMovies[randomIndex]);
-            setShowRandomMovie(true);
+            let filteredByRating = filteredMovies;
+            if(selectedRatingPreference !== ''){
+                filteredByRating = filteredMovies.filter(movie => {
+                    const rating = movie.ratingsSummary.aggregateRating;
+  
+                    if (
+                        (selectedRatingPreference === "high" && rating >= 7.0) ||
+                        (selectedRatingPreference === "low" && rating < 7.0)
+                    ) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                    });
+            }
+  
+            if (filteredByRating.length > 0) {
+              const randomIndex = Math.floor(Math.random() * filteredByRating.length);
+              setRandomMovie(filteredByRating[randomIndex]);
+              setShowRandomMovie(true);
+              setNoMoviesFound(false);
+            } else {
+              console.log("No movies found for the selected filters and rating preference.");
+              setRandomMovie(null);
+              setShowRandomMovie(false);
+              setNoMoviesFound(true);
+            }
           } else {
-            console.log("No movies found for the selected genre, decade, and runtime range.");
+            console.log("No movies found for the selected filters.");
+            setRandomMovie(null);
+            setShowRandomMovie(false);
+            setNoMoviesFound(true);
           }
+        } else {
+          console.log("No movies found for the selected filters.");
+          setRandomMovie(null);
+          setShowRandomMovie(false);
+          setNoMoviesFound(true);
         }
-    })
+      })
       .catch(error => {
         console.error(error);
       });
   };
+  
 
   const handleNextQuestion = () => {
     if (currentQuestion < questions.length - 1) {
@@ -144,6 +176,20 @@ const QAForm = () => {
                     </select>
         )}
 
+
+        {currentQuestion === 3 && (
+                      <select value={selectedRatingPreference} 
+                      onChange={event => {
+                        setSelectedRatingPreference(event.target.value);
+                        }}
+                    >
+                      <option value=''>Select Preference</option>
+                      <option value="high">High Rating (Over 7)</option>
+                      <option value="low">Low Ratings (below 7)</option>
+                      <option value="">No Preference</option>
+                    </select>
+        )}
+
         <button onClick={handleNextQuestion}>
           {currentQuestion < questions.length -1 ? "Next" : "Get Random Movie"}
         </button>
@@ -156,7 +202,11 @@ const QAForm = () => {
             <p>Runtime: {Math.floor(randomMovie.runtime.seconds / 3600)} hours {Math.floor((randomMovie.runtime.seconds % 3600) / 60)} minutes</p>
             <img src={randomMovie.primaryImage.url} alt="Movie Poster" style={{ maxWidth: '200px', maxHeight: '200px' }} />
             <p className="text-center">Description: {randomMovie.plot.plotText.plainText}</p>
+            <p>Movie Rating: {randomMovie.ratingsSummary.aggregateRating}</p>
           </div>
+        )}
+        {noMoviesFound && (
+            <h3 className='text-center m-2'>No movies met that criteria. Please change your requirements and try again</h3>
         )}
       </div>
     </div>
