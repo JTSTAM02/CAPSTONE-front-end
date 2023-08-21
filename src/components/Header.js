@@ -7,13 +7,12 @@ import { useRouter } from "next/navigation";
 import MovieMixerLogo from "../images/MovieMixerLogo.png";
 import Image from "next/image";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { GlobalStateProvider } from '../context/GlobalState';
 
 
 
 function Header() {
   return (
-    <div className="d-flex flex-column align-items-center text-center">
+    <div className=" container-fluid d-flex flex-column align-items-center text-center">
         <div>
         <h1 className=" container-fluid text-white fs-1 mb-1">Movie Mixer</h1>
         <Image className="img-fluid"

@@ -31,55 +31,59 @@ export default function Page() {
 
 
   return (
-    <div style={{
+    <div className="container-fluid bg-cover min-vh-100 d-flex flex-column justify-content-center align-items-center" style={{
       backgroundImage: 'url("https://media.istockphoto.com/id/177274717/photo/abstract-multimedia-background-composed-of-many-images-with-copy.jpg?s=612x612&w=0&k=20&c=V0G4Z-glNKzuI1ZvQMObi3_0PuxUHOqzur7d5LXB29U=")',
       backgroundSize: 'cover',
       backgroundPosition: 'center',
-      minHeight: '100vh',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center',
-      alignItems: 'center',
+      // minHeight: '100vh',
+      // display: 'flex',
+      // flexDirection: 'column',
+      // justifyContent: 'center',
+      // alignItems: 'center',
     }}>
 
         <button className="btn btn-custom p-2 mt-5 mb-1 btn-lg" onClick= {getRandomMovie}>Get Random Movie</button>
         
         {isModalVisible && randomMovie && (
-          <div className="movie-info">
+          <div className="movie-modal d-flex justify-content-center align-items-center">
+            <div className="modal-dialog modal-dialog-centered">
             <div className="modal-content">
               <div className="modal-header">
               <h2>Your Random Movie Is:</h2>
           </div>
-          <div className="modal-body">
+          <div style={{ maxWidth: '700px', overflow: 'auto'}} className="modal-body">
+          <div className="d-flex flex-column align-items-center">
   <p className="text-center mb-4" style={{ fontSize: "2rem", fontWeight: 'bolder' }}>{randomMovie.titleText.text}</p>
   
   {randomMovie.releaseYear && (
     <div>
-    <p className="mb-2">Year of Release: {randomMovie.releaseYear.year}</p>
-    <p>Genre: {randomMovie.genres.genres[0].text}</p>
+    {/* <p className="mb-2">Year of Release: {randomMovie.releaseYear.year}</p> */}
+    <p className="text-center">Genre: {randomMovie.genres.genres[0].text}</p>
     <p>Runtime: {Math.floor(randomMovie.runtime.seconds / 3600)} hours {Math.floor((randomMovie.runtime.seconds % 3600) / 60)} minutes</p>
     </div>
   )}
   
   {randomMovie.primaryImage && (
     <div className="d-flex justify-content-center mb-3">
-      <img src={randomMovie.primaryImage.url} alt="Movie Poster" className="img-fluid" style={{ maxWidth: '200px', height: 'auto' }} />
+      <img src={randomMovie.primaryImage.url} alt="Movie Poster" className="img-fluid" style={{ maxWidth: '200px', height: '300px' }} />
     </div>
   )}
   
   {randomMovie.primaryImage && randomMovie.primaryImage.caption && (
     <div>
-    <p className="text-center italicized">{randomMovie.primaryImage.caption.plainText}</p>
-    <p>Description: {randomMovie.plot.plotText.plainText}</p>
-    <p>Language: {languageMapping[randomMovie.plot.language.id]}</p>
+    <p className="text-center">{randomMovie.primaryImage.caption.plainText}</p>
+    <p className="text-center">Description: {randomMovie.plot.plotText.plainText}</p>
+    <p className="text-center">Language: {languageMapping[randomMovie.plot.language.id]}</p>
     </div>
   )}
-</div>
 
         <div className="modal-footer">
-        <button onClick={() => setIsModalVisible(false)}>Close</button>
+        <button className="btn btn-custom" onClick={() => setIsModalVisible(false)}>Close</button>
         </div>
       </div>
+    </div>
+    </div>
+    </div>
     </div>
 )}
  
@@ -110,7 +114,6 @@ export default function Page() {
         font-weight: bold;
       }
       .movie-modal {
-        position: fixed;
         top: 0;
         left: 0;        
         width: 100%;
@@ -123,7 +126,8 @@ export default function Page() {
       }
       .modal-content {
         background-color: white;
-        padding: 20px;
+        padding: 10px;
+        border: solid 20px #1F5D57;
         border-radius: 5px;
         box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
         display: flex;
@@ -132,11 +136,11 @@ export default function Page() {
       }
   
       .modal-header {
-        margin-bottom: 10px; /* Add space below header */
+        margin-bottom: 5px; /* Add space below header */
       }
   
       .modal-footer {
-        margin-top: 20px; /* Add space above footer */
+        margin-top: 5px; /* Add space above footer */
         display: flex;
         justify-content: center;
       }
@@ -145,11 +149,11 @@ export default function Page() {
         background-color: #1F5D57; /* Set the background color */
         color: #CBB26A; /* Set the text color */
         padding: 20px; /* Add some padding for spacing */
-        border-radius: 10px; /* Add rounded corners */
+        border-radius: 5px; /* Add rounded corners */
         margin-top: 20px; /* Add spacing from the button */
         text-align: center; /* Center the text */
         width: 80%;
-        max-width: 600px;
+        max-width:600px;
         height: auto;
       }
   

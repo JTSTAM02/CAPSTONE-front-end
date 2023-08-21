@@ -9,70 +9,51 @@ const QAForm = () => {
   const [randomMovie, setRandomMovie] = useState(null);
  const [currentQuestion, setCurrentQuestion] = useState(0);
  const [userAnswers, setUserAnswers] = useState([]);
+ const [selectedRuntime, setSelectedRuntime] = useState("");
+ const [selectedRuntimeStart, setSelectedRuntimeStart] = useState("");
+ const [selectedRuntimeEnd, setSelectedRuntimeEnd] = useState("");
  const [questions, setQuestions] = useState([
    "What genre of movie would you like to watch?",
    "What decade of movies would you like to watch?",
-//    "About how long do you feel like watching a movie?",
+   "About how long do you feel like watching a movie?",
 //    "Do you prefer to watch movies that are highly rated by other app users or movie critics?",
 //    "Do you want to watch a movie that has won any special awards?",
  ]);
 
  const getRandomMovie = () => {
-    if (userAnswers.length === questions.length) {
+    console.log("function called");
+    // if (userAnswers.length === questions.length) {
       const url = "http://localhost:8000/api/get_random_movie/";
       const queryParams = {
         genre: userAnswers[0],
         startYear: userAnswers[1],
-        endYear: parseInt(userAnswers[1]) + 9, // End year is start year + 9
+        endYear: parseInt(userAnswers[1]) + 9,
       };
-
+      console.log('calling Axios');
       axios.get(url, { params: queryParams })
-        .then(response => {
-          const results = response.data.results;
-          if (results.length > 0) {
-            const randomIndex = Math.floor(Math.random() * results.length);
-            setRandomMovie(results[randomIndex]);
+      .then(response => {
+        const results = response.data.results;
+        console.log(results);
+
+        if (results.length > 0) {
+          const filteredMovies = results.filter(movie => {
+            const runtimeSeconds = movie.runtime.seconds;
+            return runtimeSeconds >= selectedRuntimeStart && runtimeSeconds <= selectedRuntimeEnd;
+          });
+          console.log(filteredMovies);
+          if (filteredMovies.length > 0) {
+            const randomIndex = Math.floor(Math.random() * filteredMovies.length);
+            setRandomMovie(filteredMovies[randomIndex]);
             setShowRandomMovie(true);
           } else {
-            console.log("No movies found for the selected genre and decade.");
+            console.log("No movies found for the selected genre, decade, and runtime range.");
           }
-        })
-        .catch(error => {
-          console.error(error);
-        });
-    }
+        }
+    })
+      .catch(error => {
+        console.error(error);
+      });
   };
-
-//   const getRandomMovie = () => {
-//     const selectedAnswer = userAnswers[currentQuestion];
-
-//     if (selectedAnswer) {
-
-
-//     //   axios.get(`http://localhost:8000/api/get_random_movie/?genre=${selectedGenre}`)
-//         const url = `http://localhost:8000/api/get_random_movie/`;
-//         const querystring = {
-//             genre: selectedAnswer,
-//             startYear: selectedAnswer,
-//             endYear: selectedAnswer,
-//         };
-
-//         axios.get(url, { params: querystring})
-//         .then(response => {
-//           const results = response.data.results;
-//           if (results.length > 0) {
-//             const randomIndex = Math.floor(Math.random() * results.length);
-//             setRandomMovie(results[randomIndex]);
-//             setShowRandomMovie(true);
-//           } else {
-//             console.log("No movies found for the selected genre.");
-//           }
-//         })
-//         .catch(error => {
-//           console.error(error);
-//         });
-//     }
-//   };
 
   const handleNextQuestion = () => {
     if (currentQuestion < questions.length - 1) {
@@ -98,7 +79,7 @@ const QAForm = () => {
 
       <Navigation />
     
-      <div>
+      <div className='text-center'>
         <h2>{questions[currentQuestion]}</h2>
         {currentQuestion === 0 && (
           <select value={userAnswers[currentQuestion] || ''} onChange={event => {
@@ -106,6 +87,7 @@ const QAForm = () => {
             newAnswers[currentQuestion] = event.target.value;
             setUserAnswers(newAnswers);
           }}>
+            <option value="">Select Genre</option>
             <option value="Action">Action</option>
             <option value="Comedy">Comedy</option>
             <option value="Drama">Drama</option>
@@ -120,6 +102,7 @@ const QAForm = () => {
                 newAnswers[currentQuestion] = event.target.value;
                 setUserAnswers(newAnswers);
               }}>
+                <option value="">Select Decade</option>
                 <option value="1970">1970's</option>
                 <option value="1980">1980's</option>
                 <option value="1990">1990's</option>
@@ -129,16 +112,50 @@ const QAForm = () => {
               </select>
         )}
 
+        {currentQuestion === 2 && (
+                      <select value={selectedRuntime} 
+                      onChange={event => {
+                        const selectedValue = parseInt(event.target.value);
+                        setSelectedRuntime(selectedValue);
+
+                        if (selectedValue === 7200) {
+                            setSelectedRuntimeStart(0);
+                            setSelectedRuntimeEnd(7200);
+                          } else if (selectedValue === 10800) {
+                            setSelectedRuntimeStart(7201);
+                            setSelectedRuntimeEnd(10800);
+                          } else if (selectedValue === 14400) {
+                            setSelectedRuntimeStart(10801);
+                            setSelectedRuntimeEnd(14400);
+                          } else if (selectedValue === 10801) {
+                            setSelectedRuntimeStart(14401);
+                            setSelectedRuntimeEnd(Number.POSITIVE_INFINITY);
+                          } else {
+                            setSelectedRuntimeStart(0);
+                            setSelectedRuntimeEnd(Number.POSITIVE_INFINITY);
+                          }
+                        }
+                    }>
+                      <option value="">Select Runtime</option>
+                      <option value="7200">Less than 2 hours</option>
+                      <option value="10800">About 2 hours</option>
+                      <option value="14400">2-3 hours</option>
+                      <option value="10801">3 hours or more</option>
+                    </select>
+        )}
+
         <button onClick={handleNextQuestion}>
-          {currentQuestion < questions.length - 1 ? "Next" : "Get Random Movie"}
+          {currentQuestion < questions.length -1 ? "Next" : "Get Random Movie"}
         </button>
 
         {showRandomMovie && randomMovie && (
-          <div className="movie-info">
+          <div className="movie-info text-center">
             <h3>Your Random Movie Is:</h3>
             <p>{randomMovie.titleText.text}</p>
             <p>Year of Release: {randomMovie.releaseYear.year}</p>
+            <p>Runtime: {Math.floor(randomMovie.runtime.seconds / 3600)} hours {Math.floor((randomMovie.runtime.seconds % 3600) / 60)} minutes</p>
             <img src={randomMovie.primaryImage.url} alt="Movie Poster" style={{ maxWidth: '200px', maxHeight: '200px' }} />
+            <p className="text-center">Description: {randomMovie.plot.plotText.plainText}</p>
           </div>
         )}
       </div>
@@ -149,42 +166,6 @@ const QAForm = () => {
 export default QAForm;
 
 
-
-
-    {/* <div>
-      <h2>What genre of movie would you like to watch?</h2>
-      <select value={selectedGenre} onChange={event => setSelectedGenre(event.target.value)}>
-        <option value="">Select Genre</option>
-        <option value="Action">Action</option>
-        <option value="Comedy">Comedy</option>
-        <option value="Drama">Drama</option>
-        <option value="Family">Family</option>
-        <option value="Horror">Horror</option>
-      </select>
-
-      <input
-          type="number"
-          placeholder="Enter a decade (e.g., 1980)"
-          value={selectedDecade}
-          onChange={event => setSelectedDecade(event.target.value)}
-        />
-
-      <button onClick={getRandomMovie}>Get Random Movie</button>
-
-      {showRandomMovie && randomMovie && (
-        <div className="movie-info">
-          <h3>Your Random Movie Is:</h3>
-          <p>{randomMovie.titleText.text}</p>
-          <p>Year of Release: {randomMovie.releaseYear.year}</p>
-          <img src={randomMovie.primaryImage.url} alt="Movie Poster" style={{ maxWidth: '200px', maxHeight: '200px' }} />
-        </div>
-      )}
-    </div>
-    </div>
-  );
-};
-
-export default QAForm; */}
 
 
 
@@ -208,15 +189,6 @@ export default QAForm; */}
 //       setIsFirstSlide(JSON.parse(storedFirstSlide));
 //     }
 //   }, []);
-
-//   const questions = [
-//     "All Questions are optional. Feel free to answer all of them, or as many as you want. Once you have chosen your answer, please click Next.",
-//     "What genre of movie would you like to watch?",
-//     "What decade of movie would you like to watch?",
-//     "About how long do you want to watch a movie?",
-//     "Do you prefer to see movies that are highly ranked by other app users and movie critics?",
-//     "Finally, do you want to watch movies that have won any special awards?"
-//   ];
 
 //   const answers = [
 //     [],
@@ -242,9 +214,6 @@ export default QAForm; */}
 //       });
 //   };
 
-//   const handleAnswerClick = (answer) => {
-//     setSelectedAnswer(answer);
-//   };
 
 //   useEffect(() => {
 //     if (selectedAnswer !== '') {

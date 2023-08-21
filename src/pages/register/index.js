@@ -3,10 +3,9 @@ import AuthService from "../../services/auth.service";
 import { useRouter } from "next/navigation";
 import { useGlobalState } from "../../context/GlobalState";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import Header from "../../components/Header";
 import Navigation from "../../components/Navigation";
-
-
+import Image from "next/image";
+import Header from "../../components/Header";
 function Register() {
   const {state, dispatch} = useGlobalState();
   const router = useRouter();
@@ -36,7 +35,7 @@ function Register() {
   }
 
   return (
-    <div style={{
+    <div className="container-fluid" style={{
       backgroundImage: 'url("https://media.istockphoto.com/id/177274717/photo/abstract-multimedia-background-composed-of-many-images-with-copy.jpg?s=612x612&w=0&k=20&c=V0G4Z-glNKzuI1ZvQMObi3_0PuxUHOqzur7d5LXB29U=")',
       backgroundSize: 'cover',
       backgroundPosition: 'center',
@@ -48,7 +47,8 @@ function Register() {
     }}>
 
     <Navigation />
-      <Header />
+    <Header />
+
     <div className="w-screen h-screen">
     <div className="border-2 bg-mtgray p-4">
         <form className="border-2 bg-mtgray" onSubmit={handleRegister}>
