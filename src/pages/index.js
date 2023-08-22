@@ -1,19 +1,16 @@
 import Link from "next/link";
 import Image from "next/image";
 import MovieMixerLogo from "../images/MovieMixerLogo.png";
-import 'bootstrap/dist/css/bootstrap.min.css';
 import { useState } from "react";
 import axios from "axios";
+import { randomInt } from "crypto";
 
 export default function Page() {
   const [randomMovie, setRandomMovie] = useState(null);
-  const [isModalVisible, setIsModalVisible] = useState(false); // Add this state
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [trailers, setTrailers] = useState(null);
   const languageMapping = {
     'en-US': 'English',
-  };
-
-  const getRandomMovie = () => {
-    fetchRandomMovie();
   };
 
   const fetchRandomMovie = () => {
@@ -21,37 +18,84 @@ export default function Page() {
       .then(response => {
         const results = response.data.results;
         const randomIndex = Math.floor(Math.random() * results.length);
+        const movieId = results[randomIndex].id;
+        fetchMovieTrailers(movieId);
         setIsModalVisible(true);
         setRandomMovie(results[randomIndex]);
+        console.log(movieId);
       })
       .catch(error => {
         console.error(error);
       });
   };
+  
+  const fetchMovieTrailers = (movieId) => {
+    axios.get(`http://localhost:8000/api/get_trailers/?movieId=${movieId}`)
+      .then(response => {
+        console.log(response.data)
+        const trailers = response.data.results;
+        const matchingTrailer = trailers.find(trailer => trailer.id === movieId);
 
+        if (trailers.length > 0) {
+          setIsModalVisible(true);
+          setTrailers(trailers[0].trailer);
+        } else {
+          setIsModalVisible(true);
+          setTrailers(null);
+        }
+      })
+      .catch(error => {
+        console.error(error);
+      });
+  };
+  
+
+
+  // const fetchRandomMovie = () => {
+  //   axios.get('http://localhost:8000/api/get_random_movie/')
+  //     .then(response => {
+  //       const results = response.data.results;
+  //       const randomIndex = Math.floor(Math.random() * results.length);
+  //       const id =  results[randomIndex].id
+  //       fetchMovieTrailers(id);
+  //       setIsModalVisible(true);
+  //       setRandomMovie(results[randomIndex]);
+  //       console.log(id);
+  //     })
+  //     .catch(error => {
+  //       console.error(error);
+  //     });
+  // };
+
+  // const fetchMovieTrailers = (movieId) => {
+  //     axios.get('http://localhost:8000/api/get_trailers/',)
+  //       .then(response => {
+  //         const results = response.data.results[0].trailer;
+  //         setIsModalVisible(true);
+  //         setTrailers(results);
+  //       })
+  //       .catch(error => {
+  //         console.error(error);
+  //       });
+  // }        
 
   return (
-    <div className="container-fluid bg-cover min-vh-100 d-flex flex-column justify-content-center align-items-center" style={{
+    <div className="container-fluid min-vh-100 d-flex flex-column justify-content-center align-items-center" style={{
       backgroundImage: 'url("https://media.istockphoto.com/id/177274717/photo/abstract-multimedia-background-composed-of-many-images-with-copy.jpg?s=612x612&w=0&k=20&c=V0G4Z-glNKzuI1ZvQMObi3_0PuxUHOqzur7d5LXB29U=")',
       backgroundSize: 'cover',
       backgroundPosition: 'center',
-      // minHeight: '100vh',
-      // display: 'flex',
-      // flexDirection: 'column',
-      // justifyContent: 'center',
-      // alignItems: 'center',
     }}>
 
-        <button className="btn btn-custom p-2 mt-5 mb-1 btn-lg" onClick= {getRandomMovie}>Get Random Movie</button>
-        
+        <button className="btn btn-custom p-2 mt-5 mb-1 btn-lg" onClick= {fetchRandomMovie}>Get Random Movie</button>
+
         {isModalVisible && randomMovie && (
           <div className="movie-modal d-flex justify-content-center align-items-center">
-            <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable">
             <div className="modal-content">
               <div className="modal-header">
               <h2>Your Random Movie Is:</h2>
           </div>
-          <div style={{ maxWidth: '700px', overflow: 'auto'}} className="modal-body">
+          <div className="modal-body" style={{ maxWidth: '700px', overflow: 'auto'}}>
           <div className="d-flex flex-column align-items-center">
   <p className="text-center mb-4" style={{ fontSize: "2rem", fontWeight: 'bolder' }}>{randomMovie.titleText.text}</p>
   
@@ -73,7 +117,13 @@ export default function Page() {
     <div>
     <p className="text-center">{randomMovie.primaryImage.caption.plainText}</p>
     <p className="text-center">Description: {randomMovie.plot.plotText.plainText}</p>
-    <p className="text-center">Language: {languageMapping[randomMovie.plot.language.id]}</p>
+    <p className="text-center">
+                  Watch the Trailer Here:{" "}
+                  <a href={trailers} target="_blank" rel="noopener noreferrer">
+                    {trailers} 
+                  </a>
+                </p>    
+                <p className="text-center">Language: {languageMapping[randomMovie.plot.language.id]}</p>
     </div>
   )}
 
@@ -127,7 +177,7 @@ export default function Page() {
       .modal-content {
         background-color: white;
         padding: 10px;
-        border: solid 20px #1F5D57;
+        border: solid 10px #1F5D57;
         border-radius: 5px;
         box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
         display: flex;

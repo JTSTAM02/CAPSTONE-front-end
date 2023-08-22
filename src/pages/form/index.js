@@ -14,12 +14,19 @@ const QAForm = () => {
  const [selectedRuntimeEnd, setSelectedRuntimeEnd] = useState("");
  const [selectedRatingPreference, setSelectedRatingPreference] = useState("");
 
+
+ const handleImageClick = (selectedGenre) => {
+    const newAnswers = [...userAnswers];
+    newAnswers[currentQuestion] = selectedGenre;
+    setUserAnswers(newAnswers);
+    handleNextQuestion();
+  };
+
  const [questions, setQuestions] = useState([
    "What genre of movie would you like to watch?",
    "What decade of movies would you like to watch?",
    "About how long do you feel like watching a movie?",
-   "Do you prefer to watch movies that are highly rated by other app users or movie critics?",
-//    "Do you want to watch a movie that has won any special awards?",
+   "Do you prefer to watch movies that are highly rated by other app users or movie critics? (All ratings are out of 10).",
  ]);
 
  const getRandomMovie = () => {
@@ -40,36 +47,25 @@ const QAForm = () => {
             return runtimeSeconds >= selectedRuntimeStart && runtimeSeconds <= selectedRuntimeEnd;
           });
   
-          if (filteredMovies.length > 0) {
-            let filteredByRating = filteredMovies;
-            if(selectedRatingPreference !== ''){
-                filteredByRating = filteredMovies.filter(movie => {
-                    const rating = movie.ratingsSummary.aggregateRating;
+          let filteredMoviesWithPreference = filteredMovies;
   
-                    if (
-                        (selectedRatingPreference === "high" && rating >= 7.0) ||
-                        (selectedRatingPreference === "low" && rating < 7.0)
-                    ) {
-                        return true;
-                    } else {
-                        return false;
-                    }
-                    });
-            }
+          if (selectedRatingPreference === "high") {
+            filteredMoviesWithPreference = filteredMovies.filter(movie => {
+              return movie.ratingsSummary.aggregateRating >= 7.0;
+            });
+          } else if (selectedRatingPreference === "low") {
+            filteredMoviesWithPreference = filteredMovies.filter(movie => {
+              return movie.ratingsSummary.aggregateRating < 7.0;
+            });
+          }
   
-            if (filteredByRating.length > 0) {
-              const randomIndex = Math.floor(Math.random() * filteredByRating.length);
-              setRandomMovie(filteredByRating[randomIndex]);
-              setShowRandomMovie(true);
-              setNoMoviesFound(false);
-            } else {
-              console.log("No movies found for the selected filters and rating preference.");
-              setRandomMovie(null);
-              setShowRandomMovie(false);
-              setNoMoviesFound(true);
-            }
+          if (filteredMoviesWithPreference.length > 0) {
+            const randomIndex = Math.floor(Math.random() * filteredMoviesWithPreference.length);
+            setRandomMovie(filteredMoviesWithPreference[randomIndex]);
+            setShowRandomMovie(true);
+            setNoMoviesFound(false);
           } else {
-            console.log("No movies found for the selected filters.");
+            console.log("No movies found for the selected filters and rating preference.");
             setRandomMovie(null);
             setShowRandomMovie(false);
             setNoMoviesFound(true);
@@ -86,18 +82,44 @@ const QAForm = () => {
       });
   };
   
+  const handlePreviousQuestion = () => {
+    setCurrentQuestion(currentQuestion - 1);
+  };
 
   const handleNextQuestion = () => {
     if (currentQuestion < questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
     } else {
       // All questions answered, proceed to get random movie
-      getRandomMovie();
+      getRandomMovie;
+      if (currentQuestion === 2) {
+        if (selectedRuntime === "7200") {
+          setSelectedRuntimeStart(0);
+          setSelectedRuntimeEnd(7200);
+        } else if (selectedRuntime === "9000") {
+          setSelectedRuntimeStart(7201);
+          setSelectedRuntimeEnd(9000);
+        } else if (selectedRuntime === "14400") {
+          setSelectedRuntimeStart(7201);
+          setSelectedRuntimeEnd(14400);
+        } else if (selectedRuntime === "10801") {
+          setSelectedRuntimeStart(14401);
+          setSelectedRuntimeEnd(Number.POSITIVE_INFINITY);
+        } else {
+          setSelectedRuntimeStart(0);
+          setSelectedRuntimeEnd(Number.POSITIVE_INFINITY);
+        }
+      }
     }
   };
+  useEffect(() => {
+    if (selectedRatingPreference !== "") {
+      getRandomMovie();
+    }
+  }, [selectedRatingPreference]);
 
   return (
-    <div style={{
+    <div className='container-fluid' style={{
       backgroundImage: 'url("https://media.istockphoto.com/id/177274717/photo/abstract-multimedia-background-composed-of-many-images-with-copy.jpg?s=612x612&w=0&k=20&c=V0G4Z-glNKzuI1ZvQMObi3_0PuxUHOqzur7d5LXB29U=")',
       backgroundSize: 'cover',
       backgroundPosition: 'center',
@@ -106,437 +128,259 @@ const QAForm = () => {
       flexDirection: 'column',
       justifyContent: 'center',
       alignItems: 'center',
-      color: "white",
+      color: 'white',
     }}>
-
-      <Navigation />
-    
-      <div className='text-center'>
-        <h2>{questions[currentQuestion]}</h2>
-        {currentQuestion === 0 && (
-          <select value={userAnswers[currentQuestion] || ''} onChange={event => {
-            const newAnswers = [...userAnswers];
-            newAnswers[currentQuestion] = event.target.value;
-            setUserAnswers(newAnswers);
-          }}>
-            <option value="">Select Genre</option>
-            <option value="Action">Action</option>
-            <option value="Comedy">Comedy</option>
-            <option value="Drama">Drama</option>
-            <option value="Family">Family</option>
-            <option value="Horror">Horror</option>
-          </select>
+  
+      <div className='row'>
+        <div className='col-lg-12'>
+          <Navigation />
+  
+          {showRandomMovie ? (
+            <div className="movie-info text-center" style={{ border: '20px solid #1F5D57', padding: '20px', borderRadius: '10px', backgroundColor: 'white', color: '#CBB26A', maxWidth: '800px' }}>
+              <h1>Your Random Movie Is:</h1>
+              <h3>{randomMovie.titleText.text}</h3>
+              <p>Year of Release: {randomMovie.releaseYear.year}</p>
+              <p>Runtime: {Math.floor(randomMovie.runtime.seconds / 3600)} hours {Math.floor((randomMovie.runtime.seconds % 3600) / 60)} minutes</p>
+              <img src={randomMovie.primaryImage.url} alt="Movie Poster" style={{ maxWidth: '200px', maxHeight: '200px' }} />
+              <p className="text-center">Description: {randomMovie.plot.plotText.plainText}</p>
+              <p>Movie Rating: {randomMovie.ratingsSummary.aggregateRating}</p>
+              <button className="btn btn-primary" onClick={() => setShowRandomMovie(false)}>Close</button>
+              <div className="breadcrumb" style={{ marginTop: '20px' }}>
+              <button className="btn btn-link" onClick={() => setShowRandomMovie(false)}>Back to Form</button>
+            </div>
+            </div>
+          ) : (
+            <div className='text-center'>
+              <h2>{questions[currentQuestion]}</h2>
+         {currentQuestion === 0 && (
+            <div className="image-buttons m-4 p-2 d-flex justify-content-center flex-wrap">
+                <img
+                style={{width:'150px' , height: '300px', margin: '20px'}}
+              src='/images/genres/action.jpeg'
+              alt="Action"
+              className={userAnswers[currentQuestion] === "Action" ? "selected" : ""}
+              onClick={() => handleImageClick("Action")}
+            />
+                <img style={{width:'150px' , height: '300px', margin: '20px'}}
+              src='/images/genres/comedy.jpeg'
+              alt="Comedy"
+              className={userAnswers[currentQuestion] === "Comedy" ? "selected" : ""}
+              onClick={() => handleImageClick("Comedy")}
+            />
+                <img style={{width:'150px' , height: '300px', margin: '20px'}}
+              src='/images/genres/drama.jpeg'
+              alt="Drama"
+              className={userAnswers[currentQuestion] === "Drama" ? "selected" : ""}
+              onClick={() => handleImageClick("Drama")}
+            />
+                <img style={{width:'150px' , height: '300px', margin: '20px'}}
+              src='/images/genres/family.jpeg'
+              alt="Family"
+              className={userAnswers[currentQuestion] === "Family" ? "selected" : ""}
+              onClick={() => handleImageClick("Family")}
+            />
+                <img style={{width:'150px' , height: '300px', margin: '20px'}}
+              src='/images/genres/horror.jpeg'
+              alt="Horror"
+              className={userAnswers[currentQuestion] === "Horror" ? "selected" : ""}
+              onClick={() => handleImageClick("Horror")}
+            />
+          </div>
         )}
 
         {currentQuestion === 1 && (
-            <select value={userAnswers[currentQuestion] || ""} onChange={event => {
-                const newAnswers = [...userAnswers];
-                newAnswers[currentQuestion] = event.target.value;
-                setUserAnswers(newAnswers);
-              }}>
-                <option value="">Select Decade</option>
-                <option value="1970">1970's</option>
-                <option value="1980">1980's</option>
-                <option value="1990">1990's</option>
-                <option value="2000">2000's</option>
-                <option value="2010">2010's</option>
-                <option value="2020">2020's</option>
-              </select>
+            <div className="image-buttons m-4 p-2 d-flex justify-content-center">
+            <img
+              style={{ width: '150px', height: '300px', margin: '20px' }}
+              src="/images/decades/60s.png"
+              alt="1960's"
+              className={userAnswers[currentQuestion] === "1960" ? "selected" : ""}
+              onClick={() => handleImageClick("1960")}
+            />            
+            
+            <img
+            style={{ width: '150px', height: '300px', margin: '20px' }}
+            src="/images/decades/70s.png"
+            alt="1970's"
+            className={userAnswers[currentQuestion] === "1970" ? "selected" : ""}
+            onClick={() => handleImageClick("1970")}
+          />
+
+            <img
+              style={{ width: '150px', height: '300px', margin: '20px' }}
+              src="/images/decades/back-to-80s.png"
+              alt="1980's"
+              className={userAnswers[currentQuestion] === "1980" ? "selected" : ""}
+              onClick={() => handleImageClick("1980")}
+            />            
+            
+            <img
+            style={{ width: '150px', height: '300px', margin: '20px' }}
+            src="/images/decades/90s.jpeg"
+            alt="1990's"
+            className={userAnswers[currentQuestion] === "1990" ? "selected" : ""}
+            onClick={() => handleImageClick("1990")}
+          />            
+          
+          <img
+          style={{ width: '150px', height: '300px', margin: '20px' }}
+          src="/images/decades/2000s.jpeg"
+          alt="2000's"
+          className={userAnswers[currentQuestion] === "2000" ? "selected" : ""}
+          onClick={() => handleImageClick("2000")}
+        />            
+        
+        <img
+        style={{ width: '150px', height: '300px', margin: '20px' }}
+        src="/images/decades/2010s.webp"
+        alt="2000's"
+        className={userAnswers[currentQuestion] === "2010" ? "selected" : ""}
+        onClick={() => handleImageClick("2010")}
+      />            
+      
+      <img
+      style={{ width: '150px', height: '300px', margin: '20px' }}
+      src="/images/decades/2020s.png"
+      alt="2020's"
+      className={userAnswers[currentQuestion] === "2020" ? "selected" : ""}
+      onClick={() => handleImageClick("2020")}
+    />
+    </div>
         )}
 
-        {currentQuestion === 2 && (
-                      <select value={selectedRuntime} 
-                      onChange={event => {
-                        const selectedValue = parseInt(event.target.value);
-                        setSelectedRuntime(selectedValue);
 
-                        if (selectedValue === 7200) {
-                            setSelectedRuntimeStart(0);
-                            setSelectedRuntimeEnd(7200);
-                          } else if (selectedValue === 10800) {
-                            setSelectedRuntimeStart(7201);
-                            setSelectedRuntimeEnd(10800);
-                          } else if (selectedValue === 14400) {
-                            setSelectedRuntimeStart(10801);
-                            setSelectedRuntimeEnd(14400);
-                          } else if (selectedValue === 10801) {
-                            setSelectedRuntimeStart(14401);
-                            setSelectedRuntimeEnd(Number.POSITIVE_INFINITY);
-                          } else {
-                            setSelectedRuntimeStart(0);
-                            setSelectedRuntimeEnd(Number.POSITIVE_INFINITY);
-                          }
-                        }
-                    }>
-                      <option value="">Select Runtime</option>
-                      <option value="7200">Less than 2 hours</option>
-                      <option value="10800">About 2 hours</option>
-                      <option value="14400">2-3 hours</option>
-                      <option value="10801">3 hours or more</option>
-                    </select>
-        )}
+{currentQuestion === 2 && (
+  <div
+  className="image-buttons m-4 p-4 d-flex justify-content-center align-items-center container-fluid">
+    <div className='runtime-option'>
+      <h5 className='text-center'>Less than Two Hours</h5>
+      <img style={{ width: '150px', height: '150px', margin: '30px' }}
+      src="/images/runtime/lessthantwohours.png"
+        alt="Less than 2 hours"
+        className={selectedRuntime === "7200" ? "selected" : ""}
+        onClick={() => {
+          setSelectedRuntime("7200");
+          setSelectedRuntimeStart(0);
+          setSelectedRuntimeEnd(7200);
+          handleNextQuestion();
+        }}
+      />
+    </div>
+
+    <div className='runtime-option img-fluid'>
+      <h5>About Two Hours</h5>
+      <img style={{ width: '150px', height: '150px', margin: '30px' }}
+      src="/images/runtime/2hours.png"
+        alt="About 2 hours"
+        className={selectedRuntime === "9000" ? "selected" : ""}
+        onClick={() => {
+          setSelectedRuntime("9000");
+          setSelectedRuntimeStart(7201); // 2 to 3 hours
+          setSelectedRuntimeEnd(9000);
+          handleNextQuestion();
+        }}
+      />
+    </div>
+
+    <div className='runtime-option'>
+      <h5>Between 2-3 Hours</h5>
+      <img style={{ width: '150px', height: '150px', margin: '30px' }}
+        src="/images/runtime/between2-3hours.png"
+        alt="2-3 hours"
+        className={selectedRuntime === "14400" ? "selected" : ""}
+        onClick={() => {
+          setSelectedRuntime("10800");
+          setSelectedRuntimeStart(7200);
+          setSelectedRuntimeEnd(10800);
+          handleNextQuestion();
+
+        }}
+      />
+    </div>
+
+    <div className='runtime-option'>
+      <h5>More than 3 Hours</h5>
+      <img style={{ width: '150px', height: '150px', margin: '30px' }}
+      src="/images/runtime/3hours.jpeg"
+        alt="3 hours or more"
+        className={selectedRuntime === "10801" ? "selected" : ""}
+        onClick={() => {
+          setSelectedRuntime("10801");
+          setSelectedRuntimeStart(14401);
+          setSelectedRuntimeEnd(Number.POSITIVE_INFINITY);
+          handleNextQuestion();
+
+        }}
+      />
+    </div>
+  </div>
+)}
 
 
-        {currentQuestion === 3 && (
-                      <select value={selectedRatingPreference} 
-                      onChange={event => {
-                        setSelectedRatingPreference(event.target.value);
-                        }}
-                    >
-                      <option value=''>Select Preference</option>
-                      <option value="high">High Rating (Over 7)</option>
-                      <option value="low">Low Ratings (below 7)</option>
-                      <option value="">No Preference</option>
-                    </select>
-        )}
+{currentQuestion === 3 && (
+  <div className="image-buttons m-4 p-2 d-flex justify-content-center">
+    <div className='rating-option'>    
+      <h3 style={{ margin: '20px' }}>High Rating (7 or More)</h3>
+      <img
+        style={{ width: '150px', height: '150px', margin: '20px' }}
+        src="/images/ratings/liked.png"
+        alt="High Rating"
+        className={selectedRatingPreference === "high"}
+        onClick={() => {
+          setSelectedRatingPreference("high");
+          handleNextQuestion();
+        }}
+      />
+    </div>
 
-        <button onClick={handleNextQuestion}>
-          {currentQuestion < questions.length -1 ? "Next" : "Get Random Movie"}
-        </button>
+    <div className='rating-option'>    
+      <h3 style={{ margin: '20px' }}>Low Ratings (Below 7)</h3>
+      <img
+        style={{ width: '150px', height: '150px', margin: '20px' }}
+        src="/images/ratings/badreviews.png"
+        alt="Low Rating"
+        className={selectedRatingPreference === "low"}
+        onClick={() => {
+          setSelectedRatingPreference("low");
+          handleNextQuestion(); // Move to the next question
+        }}
+      />
+    </div>
 
-        {showRandomMovie && randomMovie && (
-          <div className="movie-info text-center">
-            <h3>Your Random Movie Is:</h3>
-            <p>{randomMovie.titleText.text}</p>
-            <p>Year of Release: {randomMovie.releaseYear.year}</p>
-            <p>Runtime: {Math.floor(randomMovie.runtime.seconds / 3600)} hours {Math.floor((randomMovie.runtime.seconds % 3600) / 60)} minutes</p>
-            <img src={randomMovie.primaryImage.url} alt="Movie Poster" style={{ maxWidth: '200px', maxHeight: '200px' }} />
-            <p className="text-center">Description: {randomMovie.plot.plotText.plainText}</p>
-            <p>Movie Rating: {randomMovie.ratingsSummary.aggregateRating}</p>
-          </div>
-        )}
-        {noMoviesFound && (
-            <h3 className='text-center m-2'>No movies met that criteria. Please change your requirements and try again</h3>
-        )}
+    <div className='rating-option'>    
+      <h3 style={{ margin: '20px' }}>No Specific Preference</h3>
+      <img
+        style={{ width: '150px', height: '150px', margin: '20px' }}
+        src="/images/ratings/trashtreasure.jpeg"
+        alt="No Preference"
+        className={selectedRatingPreference === "" ? "selected" : ""}
+        onClick={() => {
+          setSelectedRatingPreference("");
+          handleNextQuestion(); // Move to the next question
+        }}
+      />
+    </div>
+  </div>
+)}
+                            
+              <button className='btn btn-primary' onClick={handleNextQuestion}>
+                {currentQuestion < questions.length - 1 ? 'Next' : 'Get Random Movie'}
+              </button>
+              {noMoviesFound && (
+                <h3 className='text-center m-2'>No movies met that criteria. Please change your requirements and try again</h3>
+              )}
+              <div className="breadcrumb">
+              {currentQuestion > 0 && (
+                <button className="btn btn-primary" onClick={handlePreviousQuestion}>Previous</button>
+              )}
+            </div>
+            </div>
+          )}
+  
+        </div>
       </div>
     </div>
   );
 };
 
 export default QAForm;
-
-
-
-
-
-//   const [showRandomMovie, setShowRandomMovie] = useState(false);
-//   const [randomMovie, setRandomMovie] = useState(null);  
-//   const [currentQuestion, setCurrentQuestion] = useState(0);
-//   const [isFirstSlide, setIsFirstSlide] = useState(true);
-//   const [selectedAnswer, setSelectedAnswer] = useState('');
-//   const [userAnswers, setUserAnswers] = useState([]);
-//   const [recommendedMovie, setRecommendedMovie] = useState(null);
-//   const [showRecommendation, setShowRecommendation] = useState(false);
-//   const [isModalVisible, setIsModalVisible] = useState(false);
-//   const [questionsAnswered, setQuestionsAnswered] = useState(false);
-//   const [loadingRandomMovie, setLoadingRandomMovie] = useState(false);
-//   const [selectedGenre, setSelectedGenre] = useState('')
-
-
-//   useEffect(() => {
-//     const storedFirstSlide = localStorage.getItem("isFirstSlide");
-//     if (storedFirstSlide !== null) {
-//       setIsFirstSlide(JSON.parse(storedFirstSlide));
-//     }
-//   }, []);
-
-//   const answers = [
-//     [],
-//     ["Action", "Animation", "Comedy", "Crime", "Drama", "Family", "Horror", "Sport", "Western"],
-//     ["1950s", "1960s", "1970s", "1980s", "1990s", "2000s", "2010s", "2020s"],
-//     ["Less than 90 minutes", "About 2 hours", "2-3 hours","Longer than 3 Hours", "No preference"],
-//     ["Yes", "No", "It doesn't matter"]
-//     ["Sure!", "No", "No Preference"]
-//   ];
-
-
-//   const fetchRandomMovie = () => {
-//     axios.get('http://localhost:8000/api/get_random_movie/')
-//       .then(response => {
-//         const results = response.data.results;
-//         const randomIndex = Math.floor(Math.random() * results.length);
-//         setIsModalVisible(true); // Show the modal when random movie is fetched
-//         setRandomMovie(results[randomIndex]);
-//         setShowRandomMovie(true);
-//       })
-//       .catch(error => {
-//         console.error(error);
-//       });
-//   };
-
-
-//   useEffect(() => {
-//     if (selectedAnswer !== '') {
-//       handleNextQuestion();
-//     }
-//   }, [selectedAnswer]);
-
-//   const handleNextQuestion = async () => {
-//     if (currentQuestion < questions.length - 1) {
-//       setUserAnswers([...userAnswers, selectedAnswer]);
-//       setSelectedAnswer('');
-//       setCurrentQuestion(currentQuestion + 1);
-//     } else {
-
-//         setUserAnswers([...userAnswers, selectedAnswer]); // Update userAnswers
-//         setSelectedAnswer('');
-//         setCurrentQuestion(0);
-//         setQuestionsAnswered(true); // Mark all questions answered
-//         setLoadingRandomMovie(true);
-//         fetchRandomMovie();
-//     //   setCurrentQuestion(0);
-//     //   setUserAnswers([]);
-//     // const response = await axios.post('api/get-movie-recommendation', {answers: userAnswers});
-//     // const recommendedMovie = response.data.recommendedMovie;
-//     // setRecommendedMovie(recommendedMovie);
-//     // setShowRecommendation(true);
-//     }
-//   };
-
-//   const handleGetYourMovie = () => {
-//     setShowRecommendation(true);
-//     setIsModalVisible(true)
-//   };
-
-
-// const getRandomMovie = () => {
-//     axios.get('http://localhost:8000/api/get_random_movie/')
-//       .then(response => {
-//         const results = response.data.results;
-//         const randomIndex = Math.floor(Math.random() * results.length);
-//         setRandomMovie(results[randomIndex]);
-//         setShowRandomMovie(true);
-//       })
-//       .catch(error => {
-//         console.error(error);
-//       });
-//   };
-
-//   return (
-//     <div style={{
-//       backgroundImage: 'url("https://media.istockphoto.com/id/177274717/photo/abstract-multimedia-background-composed-of-many-images-with-copy.jpg?s=612x612&w=0&k=20&c=V0G4Z-glNKzuI1ZvQMObi3_0PuxUHOqzur7d5LXB29U=")',
-//       backgroundSize: 'cover',
-//       backgroundPosition: 'center',
-//       minHeight: '100vh',
-//       display: 'flex',
-//       flexDirection: 'column',
-//       justifyContent: 'center',
-//       alignItems: 'center',
-//       color: "white",
-//     }}>
-
-//       <Navigation />
-
-//       <div className="container-fluid ${showMovieData ? 'show-movie-info' : ''}">
-//         <div className="card" style={{
-//           padding: "10px",
-//           textAlign: 'center',
-//           backgroundColor: '#1F5D57',
-//           color: '#CBB26A'
-//         }}>
-
-// {questionsAnswered && showRandomMovie && randomMovie ? (
-//             <div className="movie-info">
-//               <div className="modal-content" style={{ display: 'flex', flexDirection: "column", alignItems: 'center', justifyContent: 'center'}}>
-//                 <div className="modal-header">
-//                   <h2>Your Random Movie Is:</h2>
-//                 </div>
-//                 <div className="modal-body" style={{ display: 'flex', flexDirection: "column", alignItems: 'center', justifyContent: 'center'}}>
-//                   <p>{randomMovie.titleText.text}</p>
-//                   <p>Year of Release: {randomMovie.releaseYear.year}</p>
-//                   <img src={randomMovie.primaryImage.url} alt="Movie Poster" style={{maxWidth: '200px', maxHeight: '200px'}}></img>
-//                 </div>
-//                 <div className="modal-footer" style={{ display: 'flex', flexDirection: "column", alignItems: 'center', justifyContent: 'center'}}>
-//                   <button style={{ margin: '10px'}} onClick={() => setShowRandomMovie(false)}>Close</button>
-//                 </div>
-//               </div>
-//             </div>
-//           ) : (
-//             <div>
-//               <h2 className="card-title">{questions[currentQuestion]}</h2>
-//               <div className="answers" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-//                 {answers[currentQuestion].map((answer, index) => (
-//                   <button style={{ width: '200px', padding: "5px", margin: "4px", backgroundColor: '#CBB26A' }}
-//                     key={index}
-//                     className={`answer-button ${selectedAnswer === answer ? 'selected' : ''}`}
-//                     onClick={() => handleAnswerClick(answer)}
-//                   >
-//                     {answer}
-//                   </button>
-//                 ))}
-//               </div>
-//               <button
-//                 className="btn-circle"
-//                 style={{
-//                   backgroundColor: '#CBB26A',
-//                   width: '200px',
-//                   padding: '10px',
-//                   margin: '0 auto',
-//                   display: 'block',
-//                   border: "solid #CBB26A"
-//                 }}
-//                 onClick={currentQuestion === questions.length - 1 ? getRandomMovie : handleNextQuestion}
-//               >
-//                 {currentQuestion === questions.length - 1 ? "Get Random Movie": 'Next'}
-//               </button>
-//             </div>
-//           )}
-//       </div>
-//     </div>
-//   </div>
-// );}
-
-// export default QAForm;
-
-
-
-//             {/* <h2 className="card-title">{questions[currentQuestion]}</h2>
-//             <div className="answers" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-//             {answers[currentQuestion].map((answer, index) => (
-//                     <button style={{ width: '200px', padding: "5px", margin: "4px", backgroundColor: '#CBB26A' }}
-//                     key={index}
-//                     className={`answer-button ${selectedAnswer === answer ? 'selected' : ''}`}
-//                     onClick={() => handleAnswerClick(answer)}
-//                   >
-//                     {answer}
-//                   </button>
-//                 ))}
-//                 </div>
-//           <h2 className="card-title">Your Movie Recommendations</h2>
-//           <p>Answer the questions to get a random movie recommendation.</p>
-//           <button
-//             className="btn-circle"
-//             style={{
-//               backgroundColor: '#CBB26A',
-//               width: '200px',
-//               padding: '10px',
-//               margin: '0 auto',
-//               display: 'block',
-//               border: "solid #CBB26A"
-//             }}
-//             onClick={currentQuestion === questions.length - 1 ? getRandomMovie : handleNextQuestion}
-//           >
-//             {currentQuestion === questions.length - 1 ? "Get Random Movie": 'Next'}
-//           </button>
-//         </div>
-//       </div>
-
-//       {showRandomMovie && randomMovie && (
-//         <div className="movie-info">
-//           <div className="modal-content" style={{ display: 'flex', flexDirection: "column", alignItems: 'center', justifyContent: 'center'}}>
-//             <div className="modal-header">
-//               <h2>Your Random Movie Is:</h2>
-//             </div>
-//             <div className="modal-body" style={{ display: 'flex', flexDirection: "column", alignItems: 'center', justifyContent: 'center'}}>
-//               <p>{randomMovie.titleText.text}</p>
-//               <p>Year of Release: {randomMovie.releaseYear.year}</p>
-//             <img src={randomMovie.primaryImage.url} alt="Movie Poster" style={{maxWidth: '200px', maxHeight: '200px'}}></img>
-
-//             </div>
-//             <div className="modal-footer" style={{ display: 'flex', flexDirection: "column", alignItems: 'center', justifyContent: 'center'}}>
-//               <button style={{ margin: '10px'}} onClick={() => setShowRandomMovie(false)}>Close</button>
-//             </div>
-//           </div>
-//         </div>
-//       )}
-//     </div>
-//   );
-// }; */}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//   // First Try-------------------------------------------------------------------------------------
-
-// // <div className="container-fluid">
-// //         <div className="card" style={{ padding: "10px", textAlign: 'center', backgroundColor: '#1F5D57', color: '#CBB26A' }}>
-// //           <h2 className="card-title">{questions[currentQuestion]}</h2>
-// //           <div className="answers" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-// //             {answers[currentQuestion].map((answer, index) => (
-// //                     <button style={{ width: '200px', padding: "5px", margin: "4px", backgroundColor: '#CBB26A' }}
-// //                     key={index}
-// //                     className={`answer-button ${selectedAnswer === answer ? 'selected' : ''}`}
-// //                     onClick={() => handleAnswerClick(answer)}
-// //                   >
-// //                     {answer}
-// //                   </button>
-// //             ))}
-// //           </div>
-// //           <br />
-// //           <button className="btn-circle"
-// //             style={{ backgroundColor: '#CBB26A', width: '120px', padding: '10px', margin: '0 auto', display: 'block', border: "solid #CBB26A" }}
-// //             onClick={handleNextQuestion}>
-// //             {currentQuestion === questions.length - 1 ? "Get Your Movie" : "Next"}
-// //           </button>
-// //         </div>
-// //       </div>
-
-// //       {isModalVisible && showRecommendation && recommendedMovie && (
-// //         <div className="movie-info">
-// //           <div className="modal-content">
-// //             <div className="modal-header">
-// //               <h2>Your Random Movie Is:</h2>
-// //             </div>
-// //             <div className="modal-body">
-// //               <p>{randomMovie.titleText.text}</p>
-// //             </div>
-// //             <div className="modal-footer">
-// //               <button onClick={() => setIsModalVisible(false)}>Close</button>
-// //             </div>
-// //           </div>
-// //         </div>
-// //       )}
-
-
-// //       {/* <div className="container-fluid">
-// //         <div className="card" style={{ padding: "10px", textAlign: 'center', backgroundColor: '#1F5D57',
-// //         color: '#CBB26A' }}>
-// //           <h2 className="card-title">{questions[currentQuestion]}</h2>
-// //           <div className="answers" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
-// //             {answers[currentQuestion].map((answer, index) => (
-// //               <button style={{ width: '200px', padding: "5px", margin: "4px", backgroundColor: '#CBB26A' }}
-// //                 key={index}
-// //                 className={`answer-button ${selectedAnswer === answer ? 'selected' : ''}`}
-// //                 onClick={() => handleAnswerClick(answer)}
-// //               >
-// //                 {answer}
-// //               </button>
-// //             ))}
-// //           </div>
-// //           <br />
-// //           <button className="btn-circle"
-// //           style={{ backgroundColor: '#CBB26A', width: '120px',
-// //           padding: '10px',
-// //           margin: '0 auto',
-// //           display: 'block',
-// //           border: "solid #CBB26A",
-// //         }} */}
-// //           {/* onClick={handleNextQuestion}>
-// //             {currentQuestion === questions.length - 1 ? "Restart" : "Next"}
-// //           </button>
-// //         </div>
-// //       </div>
-// //       {showRecommendation && recommendedMovie && (
-// //         <div> */}
-// //         {/* <FinalRecommendation recommendedMovie={recommendedMovie} />
-// //         <button className='btn btn-primary' onClick={handleGetYourMovie}>Get Your Movie</button>
-// //         </div>
-// //       )}
-// //     </div> */}
-// //     </div>
-// //   );
-// // };
-

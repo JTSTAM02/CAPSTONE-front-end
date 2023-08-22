@@ -1,6 +1,7 @@
 'use client'
 
-
+import 'bootstrap/dist/css/bootstrap.min.css';
+import axios from "axios";
 import styles from '../styles/global.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useEffect } from 'react';

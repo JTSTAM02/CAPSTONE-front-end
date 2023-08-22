@@ -3,3 +3,16 @@ body {
   padding: 0;
   background-color: black
 }
+
+img{
+  max-width: 100%;
+  height: auto;
+}
+
+.watchlist {
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white; /* Set font color to white */
+  border-radius: 10px;
+  text-align: center;
+}
+
