@@ -13,6 +13,7 @@ const QAForm = () => {
  const [selectedRuntimeStart, setSelectedRuntimeStart] = useState("");
  const [selectedRuntimeEnd, setSelectedRuntimeEnd] = useState("");
  const [selectedRatingPreference, setSelectedRatingPreference] = useState("");
+ const [trailers, setTrailers] = useState(null);
 
 
  const handleImageClick = (selectedGenre) => {
@@ -40,6 +41,8 @@ const QAForm = () => {
     axios.get(url, { params: queryParams })
       .then(response => {
         const results = response.data.results;
+        const movieId = results[randomIndex].id;
+        fetchMovieTrailers(movieId);
   
         if (results.length > 0) {
           const filteredMovies = results.filter(movie => {
@@ -118,6 +121,25 @@ const QAForm = () => {
     }
   }, [selectedRatingPreference]);
 
+  const fetchMovieTrailers = (movieId) => {
+    axios.get(`http://localhost:8000/api/get_trailers/${movieId}`)
+      .then(response => {
+        console.log(response.data)
+        const trailers = response.data.results;
+
+        if (trailers != null) {
+          setIsModalVisible(true);
+          setTrailers(trailers.trailer);
+        } else {
+          setIsModalVisible(true);
+          setTrailers(null);
+        }
+      })
+      .catch(error => {
+        console.error(error);
+      });
+  };
+
   return (
     <div className='container-fluid' style={{
       backgroundImage: 'url("https://media.istockphoto.com/id/177274717/photo/abstract-multimedia-background-composed-of-many-images-with-copy.jpg?s=612x612&w=0&k=20&c=V0G4Z-glNKzuI1ZvQMObi3_0PuxUHOqzur7d5LXB29U=")',
@@ -150,7 +172,7 @@ const QAForm = () => {
             </div>
             </div>
           ) : (
-            <div className='text-center'>
+            <div className='text-center genre-container'>
               <h2>{questions[currentQuestion]}</h2>
          {currentQuestion === 0 && (
             <div className="image-buttons m-4 p-2 d-flex justify-content-center flex-wrap">
@@ -189,7 +211,7 @@ const QAForm = () => {
         )}
 
         {currentQuestion === 1 && (
-            <div className="image-buttons m-4 p-2 d-flex justify-content-center">
+            <div className="image-buttons m-4 p-2 d-flex justify-content-center flex-wrap">
             <img
               style={{ width: '150px', height: '300px', margin: '20px' }}
               src="/images/decades/60s.png"
@@ -251,7 +273,7 @@ const QAForm = () => {
 
 {currentQuestion === 2 && (
   <div
-  className="image-buttons m-4 p-4 d-flex justify-content-center align-items-center container-fluid">
+  className="image-buttons m-4 p-4 d-flex justify-content-center align-items-center container-fluid flex-wrap">
     <div className='runtime-option'>
       <h5 className='text-center'>Less than Two Hours</h5>
       <img style={{ width: '150px', height: '150px', margin: '30px' }}
@@ -318,7 +340,7 @@ const QAForm = () => {
 
 
 {currentQuestion === 3 && (
-  <div className="image-buttons m-4 p-2 d-flex justify-content-center">
+  <div className="image-buttons m-4 p-2 d-flex justify-content-center flex-wrap genre-container">
     <div className='rating-option'>    
       <h3 style={{ margin: '20px' }}>High Rating (7 or More)</h3>
       <img

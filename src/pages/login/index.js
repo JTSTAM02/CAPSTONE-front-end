@@ -1,5 +1,3 @@
-"use client"
-
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react'
 import { useGlobalState } from '../../context/GlobalState';
@@ -16,23 +14,22 @@ function Page() {
     const {state, dispatch} = useGlobalState();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [username, setUsername] = useState("");
 
-    const handleLogin = async (e) => {
+    const handleLogin = (e) => {
         e.preventDefault();
-        const username = email;
         authService
-            .login(email, password, username)
-            .then(async (resp) => {
-                console.log(resp)
-                let data = jwtDecode(resp.access);
-                await dispatch({
-                    currentUserToken: resp.access,
-                    currentUser: data
-                });
-                router.push('/dashboard');
-            });
-    
-    }
+          .login(email, password, username)
+          .then(async (resp) => {
+            console.log(resp);
+            let data = jwtDecode(resp.access);
+            await dispatch({
+                currentUserToken: resp.access,
+                currentUser: data
+              });
+              router.push('/dashboard');
+          });
+      };
 
     // function handleLogin(e) {
     //     e.preventDefault();
@@ -67,6 +64,18 @@ function Page() {
             <form onSubmit={handleLogin} className= "max-w-md mx-auto"
                 >
                     <div className='row m-2 text-white'>
+                        <label htmlFor="username">Username:</label>
+                        <input
+                            className='form-control'
+                            type="text"
+                            id="username"
+                            name="username"
+                            onChange={(e) => setUsername(e.target.value)}
+                            required
+                        />
+                        </div>                    
+                        
+                        <div className='row m-2 text-white'>
                         <label htmlFor="email">Email:</label>
                         <input
                             className='form-control'

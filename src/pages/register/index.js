@@ -6,10 +6,15 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import Navigation from "../../components/Navigation";
 import Image from "next/image";
 import Header from "../../components/Header";
+import jwtDecode from 'jwt-decode';
+
+
+
 function Register() {
   const {state, dispatch} = useGlobalState();
   const router = useRouter();
   const [user, setUser] = useState({
+    username: "",
     password: "",
     passwordConf: "",
     firstName: "",
@@ -26,7 +31,7 @@ function Register() {
 
   async function handleRegister(e) {
     e.preventDefault();
-    await AuthService.register(user);
+    AuthService.register(user);
     dispatch({
       currentUserToken: state.currentUserToken,
       currentUser: state.currentUser?.user_id,
@@ -54,6 +59,19 @@ function Register() {
         <form className="border-2 bg-mtgray" onSubmit={handleRegister}>
             <div className="row mb-2">
               <div className="col">
+                <label htmlFor="username" className="form-label text-white">Username:</label>
+                <input
+                    className="form-control form-control-sm"
+                    type="text"
+                    id="username"
+                    required
+                    onChange={(e) => handleChange("username", e.target.value)}
+                />
+            </div>
+            </div>
+
+            <div className="row mb-2">
+              <div className="col">
                 <label htmlFor="firstName" className="form-label text-white">First Name:</label>
                 <input
                     className="form-control form-control-sm"
@@ -63,6 +81,7 @@ function Register() {
                     onChange={(e) => handleChange("firstName", e.target.value)}
                 />
             </div>
+
             <div className="col">
                 <label htmlFor="lastName" className="form-label text-white">Last Name:</label>
                 <input

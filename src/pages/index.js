@@ -3,7 +3,6 @@ import Image from "next/image";
 import MovieMixerLogo from "../images/MovieMixerLogo.png";
 import { useState } from "react";
 import axios from "axios";
-import { randomInt } from "crypto";
 
 export default function Page() {
   const [randomMovie, setRandomMovie] = useState(null);
@@ -30,15 +29,14 @@ export default function Page() {
   };
   
   const fetchMovieTrailers = (movieId) => {
-    axios.get(`http://localhost:8000/api/get_trailers/?movieId=${movieId}`)
+    axios.get(`http://localhost:8000/api/get_trailers/${movieId}`)
       .then(response => {
         console.log(response.data)
         const trailers = response.data.results;
-        const matchingTrailer = trailers.find(trailer => trailer.id === movieId);
 
-        if (trailers.length > 0) {
+        if (trailers != null) {
           setIsModalVisible(true);
-          setTrailers(trailers[0].trailer);
+          setTrailers(trailers.trailer);
         } else {
           setIsModalVisible(true);
           setTrailers(null);
