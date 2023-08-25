@@ -43,20 +43,3 @@ const Navigation = () => {
 };
 
 export default Navigation;
-
-
-//     <Navbar bg="light" expand="lg">
-//       <Container>
-//         <Navbar.Brand href="#">Move Mixer</Navbar.Brand>
-//         <Navbar.Toggle aria-controls="basic-navbar-nav" />
-//         <Navbar.Collapse id="basic-navbar-nav">
-//           <Nav className="me-auto">
-//             <Nav.Link href="#home">Home</Nav.Link>
-//             <Nav.Link href="#login">Login</Nav.Link>
-//             <Nav.Link href="#register">Sign Up</Nav.Link>
-//             <Nav.Link href="#dashboard">Dashboard</Nav.Link>
-//             <Nav.Link href="#form">Form</Nav.Link>
-//           </Nav>
-//         </Navbar.Collapse>
-//       </Container>
-//     </Navbar>

@@ -36,7 +36,7 @@ function Register() {
       currentUserToken: state.currentUserToken,
       currentUser: state.currentUser?.user_id,
     });
-    router.push("/");
+    router.push("/dashboard");
   }
 
   return (
@@ -57,7 +57,7 @@ function Register() {
     <div className="w-screen h-screen">
     <div className="border-2 bg-mtgray p-4">
         <form className="border-2 bg-mtgray" onSubmit={handleRegister}>
-            <div className="row mb-2">
+            {/* <div className="row mb-2">
               <div className="col">
                 <label htmlFor="username" className="form-label text-white">Username:</label>
                 <input
@@ -68,7 +68,7 @@ function Register() {
                     onChange={(e) => handleChange("username", e.target.value)}
                 />
             </div>
-            </div>
+            </div> */}
 
             <div className="row mb-2">
               <div className="col">
@@ -93,8 +93,22 @@ function Register() {
                 />
             </div>
             </div>
+
+
             <div className="row mb-2">
             <div className="col">
+            <label htmlFor="username" className="form-label text-white">Username:</label>
+                <input
+                    className="form-control form-control-sm"
+                    type="text"
+                    id="username"
+                    required
+                    onChange={(e) => handleChange("username", e.target.value)}
+                />            
+                </div>            
+
+            <div className="col">
+
                 <label htmlFor="email" className="form-label text-white">Email:</label>
                 <input
                     className="form-control form-control-sm"
@@ -104,7 +118,30 @@ function Register() {
                     onChange={(e) => handleChange("email", e.target.value)}
                 />
             </div>
-            <div className="col">
+            </div>
+
+            {/* <div className="col">
+                <label htmlFor="password" className="form-label text-white">Password:</label>
+                <input
+                    className="form-control form-control-sm"
+                    type="password"
+                    id="password"
+                    required
+                    onChange={(e) => handleChange("password", e.target.value)}
+                />
+            </div> */}
+            <div className="row mb-3">
+              <div className="col">
+                <label htmlFor="passwordConf" className="form-label text-white">Confirm Password:</label>
+                <input
+                    className="form-control form-control-sm"
+                    type="password"
+                    id="passwordConf"
+                    required
+                    onChange={(e) => handleChange("passwordConf", e.target.value)}
+                />
+                </div>
+                            <div className="col">
                 <label htmlFor="password" className="form-label text-white">Password:</label>
                 <input
                     className="form-control form-control-sm"
@@ -114,16 +151,6 @@ function Register() {
                     onChange={(e) => handleChange("password", e.target.value)}
                 />
             </div>
-            </div>
-            <div className="mb-3">
-                <label htmlFor="passwordConf" className="form-label text-white">Confirm Password:</label>
-                <input
-                    className="form-control form-control-sm"
-                    type="password"
-                    id="passwordConf"
-                    required
-                    onChange={(e) => handleChange("passwordConf", e.target.value)}
-                />
             </div>
             <div className="d-flex justify-content-center">
                 <input
@@ -146,10 +173,15 @@ function Register() {
     </div>
 </div>
 
-
-
-
-
+<style jsx>
+      {`.btn-custom{
+        background-color: #1F5D57;
+        color: #CBB26A;
+      }
+  
+      
+      `}
+    </style>
    
     </div>
   );

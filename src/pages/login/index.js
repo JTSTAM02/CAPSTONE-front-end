@@ -7,7 +7,6 @@ import Header from '../../components/Header';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Navigation from '../../components/Navigation';
 
-
 function Page() {
     const router = useRouter();
 
@@ -27,26 +26,9 @@ function Page() {
                 currentUserToken: resp.access,
                 currentUser: data
               });
-              router.push('/dashboard');
+              router.push('/profile');
           });
       };
-
-    // function handleLogin(e) {
-    //     e.preventDefault();
-    //     // console.log(email.current.value , password.current.value , "HERE")
-    //     authService
-    //         .login(email, password)
-    //         .then(async (resp) => {
-    //             console.log(resp)
-    //             let data = jwtDecode(resp.access)
-    //             await dispatch({
-    //                 currentUserToken: resp.access,
-    //                 currentUser: data
-    //             })
-    //             router.push('/dashboard')
-    //         });
-    // }
-
 
     return (
         <div style={{
@@ -111,5 +93,4 @@ function Page() {
         </div>
     )
 }
-
 export default Page

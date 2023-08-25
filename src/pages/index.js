@@ -45,37 +45,7 @@ export default function Page() {
       .catch(error => {
         console.error(error);
       });
-  };
-  
-
-
-  // const fetchRandomMovie = () => {
-  //   axios.get('http://localhost:8000/api/get_random_movie/')
-  //     .then(response => {
-  //       const results = response.data.results;
-  //       const randomIndex = Math.floor(Math.random() * results.length);
-  //       const id =  results[randomIndex].id
-  //       fetchMovieTrailers(id);
-  //       setIsModalVisible(true);
-  //       setRandomMovie(results[randomIndex]);
-  //       console.log(id);
-  //     })
-  //     .catch(error => {
-  //       console.error(error);
-  //     });
-  // };
-
-  // const fetchMovieTrailers = (movieId) => {
-  //     axios.get('http://localhost:8000/api/get_trailers/',)
-  //       .then(response => {
-  //         const results = response.data.results[0].trailer;
-  //         setIsModalVisible(true);
-  //         setTrailers(results);
-  //       })
-  //       .catch(error => {
-  //         console.error(error);
-  //       });
-  // }        
+  };      
 
   return (
     <div className="container-fluid min-vh-100 d-flex flex-column justify-content-center align-items-center" style={{
@@ -115,12 +85,7 @@ export default function Page() {
     <div>
     <p className="text-center">{randomMovie.primaryImage.caption.plainText}</p>
     <p className="text-center">Description: {randomMovie.plot.plotText.plainText}</p>
-    <p className="text-center">
-                  Watch the Trailer Here:{" "}
-                  <a href={trailers} target="_blank" rel="noopener noreferrer">
-                    {trailers} 
-                  </a>
-                </p>    
+    <p className="text-center">Watch the Trailer Here:{" "}<a href={trailers} target="_blank" rel="noopener noreferrer">{trailers} </a></p>    
                 <p className="text-center">Language: {languageMapping[randomMovie.plot.language.id]}</p>
     </div>
   )}
@@ -145,7 +110,7 @@ export default function Page() {
           </div>
         
 
-        <Link href="/dashboard" legacyBehavior><a className="btn btn-custom mt-4 m-2">Dashboard</a></Link>
+        {/* <Link href="/dashboard" legacyBehavior><a className="btn btn-custom mt-4 m-2">Dashboard</a></Link> */}
         <Link href="/login" legacyBehavior><a className="btn btn-custom m-2">Login</a></Link>
         <Link href="/register" legacyBehavior><a className="btn btn-custom m-2">Sign Up-It's Free!</a></Link>
 

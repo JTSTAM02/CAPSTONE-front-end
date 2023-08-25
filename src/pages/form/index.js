@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import Navigation from '../../components/Navigation';
+import LoggedInNavigation from '../../components/LoggedInNavbar';
+import authHeader from '../../services/auth.headers';
 
 const QAForm = () => {
   const [showRandomMovie, setShowRandomMovie] = useState(false);
@@ -14,6 +14,18 @@ const QAForm = () => {
  const [selectedRuntimeEnd, setSelectedRuntimeEnd] = useState("");
  const [selectedRatingPreference, setSelectedRatingPreference] = useState("");
  const [trailers, setTrailers] = useState(null);
+ const [isModalVisible, setIsModalVisible] = useState(false);
+ const [watchList, setWatchList] = useState([]);
+
+
+//  useEffect(() => {
+//   const savedWatchList = localStorage.getItem("watchList");
+//   if (savedWatchList) {
+//       setWatchList(JSON.parse(savedWatchList));
+//   }
+// }, []);
+
+
 
 
  const handleImageClick = (selectedGenre) => {
@@ -27,7 +39,7 @@ const QAForm = () => {
    "What genre of movie would you like to watch?",
    "What decade of movies would you like to watch?",
    "About how long do you feel like watching a movie?",
-   "Do you prefer to watch movies that are highly rated by other app users or movie critics? (All ratings are out of 10).",
+   "Do you prefer to watch movies that are highly rated by other app users? (All ratings are out of 10).",
  ]);
 
  const getRandomMovie = () => {
@@ -41,8 +53,8 @@ const QAForm = () => {
     axios.get(url, { params: queryParams })
       .then(response => {
         const results = response.data.results;
-        const movieId = results[randomIndex].id;
-        fetchMovieTrailers(movieId);
+        // const movieId = results[randomIndex].id;
+        // fetchMovieTrailers(movieId);
   
         if (results.length > 0) {
           const filteredMovies = results.filter(movie => {
@@ -64,6 +76,8 @@ const QAForm = () => {
   
           if (filteredMoviesWithPreference.length > 0) {
             const randomIndex = Math.floor(Math.random() * filteredMoviesWithPreference.length);
+            const movieId = filteredMoviesWithPreference[randomIndex].id;
+            fetchMovieTrailers(movieId);
             setRandomMovie(filteredMoviesWithPreference[randomIndex]);
             setShowRandomMovie(true);
             setNoMoviesFound(false);
@@ -94,7 +108,7 @@ const QAForm = () => {
       setCurrentQuestion(currentQuestion + 1);
     } else {
       // All questions answered, proceed to get random movie
-      getRandomMovie;
+      getRandomMovie();
       if (currentQuestion === 2) {
         if (selectedRuntime === "7200") {
           setSelectedRuntimeStart(0);
@@ -124,7 +138,6 @@ const QAForm = () => {
   const fetchMovieTrailers = (movieId) => {
     axios.get(`http://localhost:8000/api/get_trailers/${movieId}`)
       .then(response => {
-        console.log(response.data)
         const trailers = response.data.results;
 
         if (trailers != null) {
@@ -139,6 +152,31 @@ const QAForm = () => {
         console.error(error);
       });
   };
+
+  // const handleAddToWatchlist = (movieTitle) => {
+  //   if (!watchList.some(movie => movie.title === movieTitle)) {
+  //     const updatedWatchList = [...watchList, { title: movieTitle }];
+  //     setWatchList(updatedWatchList);
+  //     localStorage.setItem("watchList", JSON.stringify(updatedWatchList));
+  //   }
+  // };
+
+  const handleAddToWatchlist = (movieId) => {
+    const headers = authHeader()
+    axios
+      .post('http://127.0.0.1:8000/api/add_to_watchlist/', { movieId }, headers )
+      .then(response => {
+        console.log(response.data);
+        // const updatedWatchList = [...watchList, { title: movie }];
+        // setWatchList(updatedWatchList);
+        // localStorage.setItem('watchList', JSON.stringify(updatedWatchList));
+      })
+      .catch(error => {
+        // Handle error
+        console.error(error);
+      });
+  };
+  
 
   return (
     <div className='container-fluid' style={{
@@ -155,7 +193,7 @@ const QAForm = () => {
   
       <div className='row'>
         <div className='col-lg-12'>
-          <Navigation />
+          <LoggedInNavigation />
   
           {showRandomMovie ? (
             <div className="movie-info text-center" style={{ border: '20px solid #1F5D57', padding: '20px', borderRadius: '10px', backgroundColor: 'white', color: '#CBB26A', maxWidth: '800px' }}>
@@ -166,43 +204,52 @@ const QAForm = () => {
               <img src={randomMovie.primaryImage.url} alt="Movie Poster" style={{ maxWidth: '200px', maxHeight: '200px' }} />
               <p className="text-center">Description: {randomMovie.plot.plotText.plainText}</p>
               <p>Movie Rating: {randomMovie.ratingsSummary.aggregateRating}</p>
+              <p className="text-center">Watch the Trailer Here:{" "}<a href={trailers} target="_blank" rel="noopener noreferrer">{trailers} </a></p>    
               <button className="btn btn-primary" onClick={() => setShowRandomMovie(false)}>Close</button>
+
               <div className="breadcrumb" style={{ marginTop: '20px' }}>
               <button className="btn btn-link" onClick={() => setShowRandomMovie(false)}>Back to Form</button>
             </div>
+            <button className="btn btn-custom" onClick={() => {handleAddToWatchlist(randomMovie.id);
+            }}>Add to Watchlist</button>
+
             </div>
           ) : (
             <div className='text-center genre-container'>
               <h2>{questions[currentQuestion]}</h2>
          {currentQuestion === 0 && (
-            <div className="image-buttons m-4 p-2 d-flex justify-content-center flex-wrap">
+            <div className="image-buttons m-2 d-flex justify-content-center flex-wrap">
                 <img
-                style={{width:'150px' , height: '300px', margin: '20px'}}
+                style={{width:'150px' , height: '250px', margin: '20px'}}
               src='/images/genres/action.jpeg'
               alt="Action"
               className={userAnswers[currentQuestion] === "Action" ? "selected" : ""}
               onClick={() => handleImageClick("Action")}
             />
-                <img style={{width:'150px' , height: '300px', margin: '20px'}}
-              src='/images/genres/comedy.jpeg'
+                <img 
+                style={{width:'150px' , height: '250px', margin: '20px'}}
+                src='/images/genres/comedy.jpeg'
               alt="Comedy"
               className={userAnswers[currentQuestion] === "Comedy" ? "selected" : ""}
               onClick={() => handleImageClick("Comedy")}
             />
-                <img style={{width:'150px' , height: '300px', margin: '20px'}}
-              src='/images/genres/drama.jpeg'
+                <img 
+                style={{width:'150px' , height: '250px', margin: '20px'}}
+                src='/images/genres/drama.jpeg'
               alt="Drama"
               className={userAnswers[currentQuestion] === "Drama" ? "selected" : ""}
               onClick={() => handleImageClick("Drama")}
             />
-                <img style={{width:'150px' , height: '300px', margin: '20px'}}
-              src='/images/genres/family.jpeg'
+                <img 
+                style={{width:'150px' , height: '250px', margin: '20px'}}
+                src='/images/genres/family.jpeg'
               alt="Family"
               className={userAnswers[currentQuestion] === "Family" ? "selected" : ""}
               onClick={() => handleImageClick("Family")}
             />
-                <img style={{width:'150px' , height: '300px', margin: '20px'}}
-              src='/images/genres/horror.jpeg'
+                <img 
+                style={{width:'150px' , height: '250px', margin: '20px'}}
+                src='/images/genres/horror.jpeg'
               alt="Horror"
               className={userAnswers[currentQuestion] === "Horror" ? "selected" : ""}
               onClick={() => handleImageClick("Horror")}
@@ -213,23 +260,23 @@ const QAForm = () => {
         {currentQuestion === 1 && (
             <div className="image-buttons m-4 p-2 d-flex justify-content-center flex-wrap">
             <img
-              style={{ width: '150px', height: '300px', margin: '20px' }}
-              src="/images/decades/60s.png"
+                style={{width:'150px' , height: '200px', margin: '20px'}}
+                src="/images/decades/60s.png"
               alt="1960's"
               className={userAnswers[currentQuestion] === "1960" ? "selected" : ""}
               onClick={() => handleImageClick("1960")}
             />            
             
             <img
-            style={{ width: '150px', height: '300px', margin: '20px' }}
-            src="/images/decades/70s.png"
+                style={{width:'150px' , height: '200px', margin: '20px'}}
+                src="/images/decades/70s.png"
             alt="1970's"
             className={userAnswers[currentQuestion] === "1970" ? "selected" : ""}
             onClick={() => handleImageClick("1970")}
           />
 
             <img
-              style={{ width: '150px', height: '300px', margin: '20px' }}
+              style={{ width: '150px', height: '200px', margin: '20px' }}
               src="/images/decades/back-to-80s.png"
               alt="1980's"
               className={userAnswers[currentQuestion] === "1980" ? "selected" : ""}
@@ -237,7 +284,7 @@ const QAForm = () => {
             />            
             
             <img
-            style={{ width: '150px', height: '300px', margin: '20px' }}
+            style={{ width: '150px', height: '200px', margin: '20px' }}
             src="/images/decades/90s.jpeg"
             alt="1990's"
             className={userAnswers[currentQuestion] === "1990" ? "selected" : ""}
@@ -245,7 +292,7 @@ const QAForm = () => {
           />            
           
           <img
-          style={{ width: '150px', height: '300px', margin: '20px' }}
+          style={{ width: '150px', height: '200px', margin: '20px' }}
           src="/images/decades/2000s.jpeg"
           alt="2000's"
           className={userAnswers[currentQuestion] === "2000" ? "selected" : ""}
@@ -253,7 +300,7 @@ const QAForm = () => {
         />            
         
         <img
-        style={{ width: '150px', height: '300px', margin: '20px' }}
+        style={{ width: '150px', height: '200px', margin: '20px' }}
         src="/images/decades/2010s.webp"
         alt="2000's"
         className={userAnswers[currentQuestion] === "2010" ? "selected" : ""}
@@ -261,7 +308,7 @@ const QAForm = () => {
       />            
       
       <img
-      style={{ width: '150px', height: '300px', margin: '20px' }}
+      style={{ width: '150px', height: '200px', margin: '20px' }}
       src="/images/decades/2020s.png"
       alt="2020's"
       className={userAnswers[currentQuestion] === "2020" ? "selected" : ""}
@@ -404,5 +451,4 @@ const QAForm = () => {
     </div>
   );
 };
-
 export default QAForm;
