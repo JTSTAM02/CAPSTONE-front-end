@@ -44,10 +44,10 @@ function Page() {
     
 
     const handleAddToWatchlist = () => {
-        const movieId = movieToAdd.id; // Replace with the actual way to get the movie ID
-        axios.post('/add_to_watchlist/', { movie_id: movieId })
+        const movieId = movieToAdd.id; 
+        axios.post('http://127.0.0.1:8000/add_to_watchlist/', { movie_id: movieId })
           .then(response => {
-            alert(response.data.message);
+            alert(response.data.results);
           })
           .catch(error => {
             console.error('Error adding movie to watchlist:', error);
@@ -55,8 +55,7 @@ function Page() {
       };
 
       useEffect(() => {
-        // Fetch user's watchlist from the server
-        axios.get('/api/get_watchlist/')
+        axios.get('http://127.0.0.1:8000/api/get_watchlist/')
           .then(response => {
             const watchlistData = response.data.watchlist;
             setWatchList(watchlistData);

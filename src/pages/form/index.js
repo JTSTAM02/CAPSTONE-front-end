@@ -53,8 +53,7 @@ const QAForm = () => {
     axios.get(url, { params: queryParams })
       .then(response => {
         const results = response.data.results;
-        // const movieId = results[randomIndex].id;
-        // fetchMovieTrailers(movieId);
+
   
         if (results.length > 0) {
           const filteredMovies = results.filter(movie => {
@@ -167,15 +166,25 @@ const QAForm = () => {
       .post('http://127.0.0.1:8000/api/add_to_watchlist/', { movieId }, headers )
       .then(response => {
         console.log(response.data);
-        // const updatedWatchList = [...watchList, { title: movie }];
-        // setWatchList(updatedWatchList);
-        // localStorage.setItem('watchList', JSON.stringify(updatedWatchList));
+        const updatedWatchList = [...watchList, { title: movieId }];
+        setWatchList(updatedWatchList);
+        localStorage.setItem('watchList', JSON.stringify(updatedWatchList));
       })
       .catch(error => {
         // Handle error
         console.error(error);
       });
   };
+
+// axios.post('http://127.0.0.1:8000/api/add_to_watchlist/', data)
+//     .then(response => {
+//         console.log('Post request successful:', response.data);
+//         setLogButtonContent('Logged! Check Account For Details');
+//         setTimeout(() => {
+//             setLogButtonContent('Log Exercise');
+//         }, 1500);
+//     })
+ 
   
 
   return (

@@ -110,9 +110,8 @@ export default function Page() {
           </div>
         
 
-        {/* <Link href="/dashboard" legacyBehavior><a className="btn btn-custom mt-4 m-2">Dashboard</a></Link> */}
         <Link href="/login" legacyBehavior><a className="btn btn-custom m-2">Login</a></Link>
-        <Link href="/register" legacyBehavior><a className="btn btn-custom m-2">Sign Up-It's Free!</a></Link>
+        <Link href="/register" legacyBehavior><a className="btn btn-custom">Sign Up-It's Free!</a></Link>
 
       <br></br>
     <style jsx>
