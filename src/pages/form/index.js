@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import LoggedInNavigation from '../../components/LoggedInNavbar';
 import authHeader from '../../services/auth.headers';
+import jwtDecode from 'jwt-decode';
+import { useGlobalState } from '../../context/GlobalState';
 
 const QAForm = () => {
   const [showRandomMovie, setShowRandomMovie] = useState(false);
@@ -15,8 +17,9 @@ const QAForm = () => {
  const [selectedRatingPreference, setSelectedRatingPreference] = useState("");
  const [trailers, setTrailers] = useState(null);
  const [isModalVisible, setIsModalVisible] = useState(false);
- const [watchList, setWatchList] = useState([]);
-
+ const [watchList, setWatchList] = useState();
+ const [movieId, setMovieId] = useState();
+ const {state, dispatch} = useGlobalState();
 
 //  useEffect(() => {
 //   const savedWatchList = localStorage.getItem("watchList");
@@ -25,7 +28,21 @@ const QAForm = () => {
 //   }
 // }, []);
 
-
+  useEffect(() => {
+    // Function to retrieve user data from local storage
+    const getUserFromLocalStorage = () => {
+      const userData = localStorage.getItem('user');
+      if (userData) {
+        const user = jwtDecode(userData);
+        console.log('User data:', user);
+        dispatch({
+            type: 'SET_USER',
+            payload: user
+        });
+      }
+    };
+    getUserFromLocalStorage();
+  }, []);
 
 
  const handleImageClick = (selectedGenre) => {
@@ -53,6 +70,7 @@ const QAForm = () => {
     axios.get(url, { params: queryParams })
       .then(response => {
         const results = response.data.results;
+        const movieData = response.data;
 
   
         if (results.length > 0) {
@@ -75,7 +93,8 @@ const QAForm = () => {
   
           if (filteredMoviesWithPreference.length > 0) {
             const randomIndex = Math.floor(Math.random() * filteredMoviesWithPreference.length);
-            const movieId = filteredMoviesWithPreference[randomIndex].id;
+            let movieId = filteredMoviesWithPreference[randomIndex].id;
+            setWatchList(movieId);
             fetchMovieTrailers(movieId);
             setRandomMovie(filteredMoviesWithPreference[randomIndex]);
             setShowRandomMovie(true);
@@ -106,7 +125,6 @@ const QAForm = () => {
     if (currentQuestion < questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
     } else {
-      // All questions answered, proceed to get random movie
       getRandomMovie();
       if (currentQuestion === 2) {
         if (selectedRuntime === "7200") {
@@ -128,6 +146,25 @@ const QAForm = () => {
       }
     }
   };
+
+  useEffect(() => {
+    // Function to retrieve user data from local storage
+    const getUserFromLocalStorage = () => {
+      const userData = localStorage.getItem('user');
+      if (userData) {
+        const user = jwtDecode(userData);
+        console.log('User data:', user);
+        dispatch({
+            type: 'SET_USER',
+            payload: user
+        });
+      }
+    };
+    getUserFromLocalStorage();
+  }, []);
+
+
+
   useEffect(() => {
     if (selectedRatingPreference !== "") {
       getRandomMovie();
@@ -159,32 +196,31 @@ const QAForm = () => {
   //     localStorage.setItem("watchList", JSON.stringify(updatedWatchList));
   //   }
   // };
-
-  const handleAddToWatchlist = (movieId) => {
+  const handleAddToWatchlist = async (movieId) => {
     const headers = authHeader()
-    axios
-      .post('http://127.0.0.1:8000/api/add_to_watchlist/', { movieId }, headers )
-      .then(response => {
-        console.log(response.data);
-        const updatedWatchList = [...watchList, { title: movieId }];
-        setWatchList(updatedWatchList);
-        localStorage.setItem('watchList', JSON.stringify(updatedWatchList));
-      })
-      .catch(error => {
-        // Handle error
-        console.error(error);
-      });
-  };
 
-// axios.post('http://127.0.0.1:8000/api/add_to_watchlist/', data)
-//     .then(response => {
-//         console.log('Post request successful:', response.data);
-//         setLogButtonContent('Logged! Check Account For Details');
-//         setTimeout(() => {
-//             setLogButtonContent('Log Exercise');
-//         }, 1500);
-//     })
- 
+    const data = {   //all data needed for database
+      title: randomMovie.titleText.text,
+      release_year: randomMovie.releaseYear.year + "-01-01",
+      description: randomMovie.plot.plotText.plainText,
+      image: randomMovie.primaryImage.url,
+      user_id: state.user.user_id,
+      userRating: randomMovie.ratingsSummary.aggregateRating,
+      trailerLink: trailers,
+      added_at: new Date(),
+      alphabetic_id: String(movieId), //API's movie ID for the movie
+    }
+    console.log(data);
+    try {
+      const response = await axios.post('http://127.0.0.1:8000/api/add_to_watchlist/', data, { headers })
+        console.log(response);
+        setWatchList(response.data);
+        localStorage.setItem('watchList', JSON.stringify(response.data));
+      }
+      catch(error) {
+        console.error(error);
+      };
+  };
   
 
   return (
@@ -219,8 +255,8 @@ const QAForm = () => {
               <div className="breadcrumb" style={{ marginTop: '20px' }}>
               <button className="btn btn-link" onClick={() => setShowRandomMovie(false)}>Back to Form</button>
             </div>
-            <button className="btn btn-custom" onClick={() => {handleAddToWatchlist(randomMovie.id);
-            }}>Add to Watchlist</button>
+            <button className="btn btn-custom" onClick={(e) => handleAddToWatchlist(randomMovie.id)
+            }>Add to Watchlist</button>
 
             </div>
           ) : (

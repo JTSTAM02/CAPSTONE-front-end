@@ -1,12 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import authHeader from '../services/auth.headers';
+import { useGlobalState } from '../context/GlobalState';
+
 
 function TopRatedMovies() {
   const [topMovies, setTopMovies] = useState([]);
+  const { state, dispatch } = useGlobalState();
+
 
   useEffect(() => {
     fetchTopMovies();
   }, []);
+
 
   function fetchTopMovies() {
     axios
@@ -21,15 +27,15 @@ function TopRatedMovies() {
   }
 
   return (
-    <div className='top-rated-movies text-center'>
+    <div className='text-center'>
       <h2>Highest Rated Movies</h2>
       <ul className='movie-grid'>
         {topMovies.slice(1, 9).map(movie => (
           <li className='movie-item' key={movie._id}>
-            <div className='movie-content'>
+            <div className='movie-content text-center'>
               <img
                 className='img-fluid'
-                style={{ maxWidth: '200px', maxHeight: '200px' }}
+                style={{ maxWidth: '150px', maxHeight: '200px' }}
                 src={movie.primaryImage.url}
                 alt={movie.titleText.text}
               />
@@ -38,31 +44,40 @@ function TopRatedMovies() {
             <div className='movie-hover-content'>
               <p>Release Year: {movie.releaseYear.year}</p>
               <p>Current Rating by App Users: {movie.ratingsSummary.aggregateRating}</p>
+              <button className="btn btn-custom" onClick={() => handleAddToWatchlist(movie)}>Add To Watchlist</button>
             </div>
           </li>
         ))}
       </ul>
       <style jsx>{`
-        .top-rated-movies {
-        }
 
+.btn-custom{
+  background-color: #1F5D57;
+  color: #CBB26A;
+}
         .movie-grid {
-          display: grid;
-          grid-template-columns: repeat(4, 1fr);
+          display: flex;
+          flex-wrap: wrap;
           gap: 10px;
-          list-style: none;
-          padding: 0;
-          margin: 0;
+          justify-content: space-between;
+          align-items: flex-start;
+          gap: 10px;
         }
 
         .movie-item {
-          position: relative;
-          border: 10px solid transparent;
-          padding: 0px;
-          background-color: black;
-          border-radius: 5px;
-          text-align: center;
-          box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
+          flex: 0 1 calc(25% - 10px); /* Four items in a row, subtracting gap */
+  background-color: black;
+  border-radius: 5px;
+  text-align: center;
+  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
+  transition: overflow 0.3s;
+  position: relative;
+  oveflow: hidden;
+  heigt: 400px;
+        }
+
+        .movie-item:hover .movie-hover-content {
+          display: block;
         }
 
         .movie-content {
@@ -84,13 +99,49 @@ function TopRatedMovies() {
           transition: opacity 0.3s;
         }
 
-        .movie-item:hover .movie-hover-content {
-          display: block;
-        }
+ 
 
         .movie-item img {
           margin-bottom: 10px;
+          width: 100%;
+          height: 200px;
+          max-height: 200px;
         }
+
+
+ 
+ 
+        
+        /* Media query for screens below 950px width */
+        @media (max-width: 950px) {
+          .movie-item {
+            width: 25%; /* Set width to 25% to keep 4 items per row */
+          }
+
+        /* Media query for screens below 393px width */
+        @media (max-width: 393px) {
+          .movie-item h5 {
+            font-size: 4vw; /* Further adjust font size for smallest screens */
+          }
+        }
+
+        @media (max-width: 950px) {
+          .movie-grid {
+            justify-content: center; /* Center items horizontally */
+          }
+        
+          .movie-item {
+            flex: 0 1 calc(33.33% - 10px); /* Three items in a row, subtracting gap */
+          }
+        }
+
+        @media (min-height: 851px) and (max-height: 1000px) {
+          .movie-item {
+            flex: unset; /* Unset the flex property */
+            width: 100%; /* Reset the width to occupy full container width */
+          }
+        }
+
       `}</style>
     </div>
   );

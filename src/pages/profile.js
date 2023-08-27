@@ -4,9 +4,12 @@ import Header from '/src/components/Header';
 import LoggedInNavigation from "/src/components/LoggedInNavbar";
 import RatingStarsComponent from 'react-rating-stars-component';
 import axios from "axios";
+import jwtDecode from 'jwt-decode';
+import { useGlobalState } from "../context/GlobalState";
+import authHeader from "../services/auth.headers";
 
 
-function Page() {
+function Profile() {
     const [watchList, setWatchList] = useState([]);
     const [movieToAdd, setMovieToAdd] = useState("");
     const [ratings, setRatings] = useState({});
@@ -14,8 +17,7 @@ function Page() {
     const [watchedMovies, setWatchedMovies] = useState({})
     const [movieReviews, setMovieReviews] = useState([]);
     const [comment, setComment] = useState([]);
-
-
+    const {state, dispatch} = useGlobalState();
 
 // -----------------------------Working for LocalStorage----------------------------------
     // useEffect(() => {
@@ -42,63 +44,102 @@ function Page() {
     //     setMovieToAdd("");
     // };
     
-
-    const handleAddToWatchlist = () => {
-        const movieId = movieToAdd.id; 
-        axios.post('http://127.0.0.1:8000/add_to_watchlist/', { movie_id: movieId })
-          .then(response => {
-            alert(response.data.results);
-          })
-          .catch(error => {
-            console.error('Error adding movie to watchlist:', error);
-          });
+    useEffect(() => {
+      const token = localStorage.getItem('access_token');
+      const url = 'http://127.0.0.1:8000/api/get_watchlist/';
+      const headers = {
+        Authorization: `Bearer ${token}`,
       };
+  
+      axios.get(url, { headers })
+        .then(response => {
+          const watchlistData = response.data.watchlist;
+          setWatchList(watchlistData);
+        })
+        .catch(error => {
+          // Handle error
+        });
+    }, []);
+      
+    // const fetchDataToWatchlist = () => {
+    //     const token = localStorage.getItem('token');
+    //   const headers = { Authorization: `Bearer ${token}` };
+    //     axios.get('http://127.0.0.1:8000/api/get_watchlist/', { headers })
+    //       .then(response => {
+    //         const watchlistData = response.data;
+    //         console.log(watchlistData);
+    //         setWatchList(watchlistData);
+    //       })
+    //       .catch(error => {
+    //         console.error('Error fetching watchlist:', error);
+    //       });
+    //   };
+      
+
 
       useEffect(() => {
-        axios.get('http://127.0.0.1:8000/api/get_watchlist/')
-          .then(response => {
-            const watchlistData = response.data.watchlist;
-            setWatchList(watchlistData);
-          })
-          .catch(error => {
-            console.error(error);
-          });
+        // Function to retrieve user data from local storage
+        const getUserFromLocalStorage = () => {
+          const userData = localStorage.getItem('user');
+          if (userData) {
+            const user = jwtDecode(userData);
+            console.log('User data:', user);
+            dispatch({
+                type: 'SET_USER',
+                payload: user
+            });
+          }
+        };
+        getUserFromLocalStorage();
       }, []);
 
-    const handleRemoveMovie = (title) => {
-        const updatedWatchList = watchList.filter(movie => movie.title !== title);
-        setWatchList(updatedWatchList);
-    };
 
-    const handleRatingChange = (movieTitle, newRating) => {
-        setMovieReviews(prevRatings => ({
-            ...prevRatings,
-            [movieTitle]: {...prevRatings[movieTitle],
-                rating: newRating,
-            },
-        }));
-    };
+      function removeFromWatchlist(movieId) {
+        const token = localStorage.getItem('access_token');
+        const url = 'http://127.0.0.1:8000/api/remove_from_watchlist/';
+        const headers = {
+          Authorization: `Bearer ${token}`,
+        };
+      
+        axios
+          .post(url, { movie_id: movieId }, { headers })
+          .then(response => {
+          })
+          .catch(error => {
+            // Handle errors
+          });
+      }
 
-    const handleWatchedChange = (movieTitle) => {
-        setWatchedMovies(prevWatched => ({
-            ...prevWatched,
-            [movieTitle]: !prevWatched[movieTitle],
-        }));
-        setRatings((prevRatings) => ({
-            ...prevRatings,
-            [movieTitle]: 0,
-          }));
-    };
+    // const handleRatingChange = (movieTitle, newRating) => {
+    //     setMovieReviews(prevRatings => ({
+    //         ...prevRatings,
+    //         [movieTitle]: {...prevRatings[movieTitle],
+    //             rating: newRating,
+    //         },
+    //     }));
+    // };
 
-    const handleReviewChange = (movieTitle, newReview) => {
-        setMovieReviews(prevReviews => ({
-            ...prevReviews,
-            [movieTitle]: {
-                ...prevReviews[movieTitle],
-                comment: newReview,
-            },
-        }));
-    };
+    // const handleWatchedChange = (movieTitle) => {
+    //     setWatchedMovies(prevWatched => ({
+    //         ...prevWatched,
+    //         [movieTitle]: !prevWatched[movieTitle],
+    //     }));
+    //     setRatings((prevRatings) => ({
+    //         ...prevRatings,
+    //         [movieTitle]: 0,
+    //       }));
+    // };
+
+    // const handleReviewChange = (movieTitle, newReview) => {
+    //     setMovieReviews(prevReviews => ({
+    //         ...prevReviews,
+    //         [movieTitle]: {
+    //             ...prevReviews[movieTitle],
+    //             comment: newReview,
+    //         },
+    //     }));
+    // };
+
 
     return (
         <div className="container-fluid text-center text-white">
@@ -115,42 +156,51 @@ function Page() {
 
                 <div className="row">
                     <div className="col-sm-4">
-                        <LoggedInNavigation />
+                        <LoggedInNavigation /> 
+                        <h2 className="text-white text-center mt-5">My Watchlist</h2>
+
                        <div className="watchlist">
-                            <h2 className="text-white">My Watchlist</h2>
-                            <p>Got movies you want to remember for next time? Save them Here!</p>
-                            <input
-                                type="text"
-                                placeholder="Enter movie title"
-                                value={movieToAdd}
-                                onChange={(e) => setMovieToAdd(e.target.value)}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter') {
-                                        handleAddToWatchlist(movieToAdd);
-                                    }
-                                }}
-                            />
-                            <button onClick={() => handleAddToWatchlist(movieToAdd)}>Add Movie</button>
-                            <ul className="movie-list" style={{ marginTop: '10px' }}>
-                                {watchList.map(movie => (
-                                    <li key={movie.title}>
-                                        <div className="list-item">
-                                            {movie.title}
-                                            <button onClick={() => handleRemoveMovie(movie.title)}>Remove</button>
-                                        </div>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    </div>
-                    <div className="col-sm-4">
+                            <ul className="movie-grid" style={{ marginTop: '10px' }}>
+  {watchList.map(item => (
+    <li className="movie-item d-flex justify-content-center" key={item.id}>
+      <div className="list-item">
+        <div className="movie-content">{item.movie_title}
+        <div className="movie-image">
+          <img
+            src={item.movie_image}
+            alt={item.movie_title}
+            style={{ maxWidth: '200px', maxHeight: '250px' }}
+          />
+          </div>
+          <div className="movie-hover-content">
+          <p>Release Year: {item.movie_release_year}</p>
+            <p>User Rating: {item.movie_userRating}</p>
+            <a href={item.movie_trailerLink} target="_blank" rel="noopener noreferrer">
+              Trailer
+            </a>
+            {/* <button onClick={() => removeFromWatchlist(item.id)}>Remove from Watchlist</button> */}
+          </div>
+        </div>
+      </div>
+    </li>
+  ))}
+</ul>
+
+                            </div>
+                            </div>
+                            <div className="col-sm-4"></div>
+                    <div className="col-sm-4 mt-5">
+                    <div>
+                <h1>Welcome {state.userData} to</h1>
+
+        </div>
                     <Header />
                         <Link href="/form">Find Your Movie Here:</Link>
      
                     </div>
 
 
-            <div className="col-sm-4">
+            {/* <div className="col-sm-4">
                     <div className="movie-tracker">
                         <h2>My Movie Tracker</h2>
                         <p>Track the movies you've watched and leave reviews</p>
@@ -192,10 +242,10 @@ function Page() {
                                 </li>
                             ))}
                         </ul>
+ */}
 
-
-<div>
-       <form onSubmit={handleAddToWatchlist}>
+{/* <div>
+       <form onSubmit={fetchDataToWatchlist}>
          <div>
            <label>Movie :</label>
            <input type="text" onChange={(e) => setMovieReviews(e.target.value)} />
@@ -212,11 +262,84 @@ function Page() {
        </form>
     </div>
                     </div> 
-                </div>
+                </div>*/}
             </div>
-            </div>
+            </div> 
+            <style jsx>
+                {`
+.btn-custom {
+    background-color: #1F5D57;
+    color: #CBB26A;
+  }
+
+  .watchlist {
+    text-align: center;
+  }
+
+  .movie-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    list-style: none;
+    padding: 0;
+    margin-top: 10px;
+  }
+
+  .movie-item {
+    position: relative;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #1F5D57;
+    text-align: center;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease-in-out;
+  }
+
+  .movie-item:hover {
+    transform: translateY(-5px);
+  }
+
+  .movie-content {
+    position: relative;
+  }
+
+.movie-card {
+  width: 100%; /* Set a fixed width */
+  padding: 10px;
+  border: 1px solid #ddd;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  /* Add other styling as needed */
+}
+
+
+  .movie-hover-content {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    box-sizing: border-box;
+    transition: opacity 0.3s;
+  }
+
+  .movie-item:hover .movie-hover-content {
+    display: block;
+  }
+
+  .movie-title {
+    margin-bottom: 10px;
+  }
+
+
+                `}
+            </style>
             </div>
     )
 }
 
-export default Page
+export default Profile

@@ -6,6 +6,7 @@ import styles from '../styles/global.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useEffect } from 'react';
 import { GlobalStateProvider } from '../context/GlobalState';
+import { useGlobalState } from '../context/GlobalState';
 
 
 function MyApp({ Component, pageProps }) {

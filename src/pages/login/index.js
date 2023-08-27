@@ -1,5 +1,5 @@
 import { useRouter } from 'next/navigation';
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useGlobalState } from '../../context/GlobalState';
 import authService from '../../services/auth.service';
 import jwtDecode from 'jwt-decode';
@@ -22,6 +22,9 @@ function Page() {
           .then(async (resp) => {
             console.log(resp);
             let data = jwtDecode(resp.access);
+            const { username } = data;
+            localStorage.setItem('access_token', resp.access);
+            localStorage.setItem('refresh_token', resp.refresh);
             await dispatch({
                 currentUserToken: resp.access,
                 currentUser: data
@@ -29,6 +32,22 @@ function Page() {
               router.push('/profile');
           });
       };
+
+  useEffect(() => {
+    // Function to retrieve user data from local storage
+    const getUserFromLocalStorage = () => {
+      const userData = localStorage.getItem('user');
+      if (userData) {
+        const user = jwtDecode(userData);
+        console.log('User data:', user);
+        dispatch({
+            type: 'SET_USER',
+            payload: user
+        });
+      }
+    };
+    getUserFromLocalStorage();
+  }, []);
 
     return (
         <div style={{

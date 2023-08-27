@@ -39,6 +39,22 @@ function Register() {
     router.push("/dashboard");
   }
 
+  useEffect(() => {
+    // Function to retrieve user data from local storage
+    const getUserFromLocalStorage = () => {
+      const userData = localStorage.getItem('user');
+      if (userData) {
+        const user = jwtDecode(userData);
+        console.log('User data:', user);
+        dispatch({
+            type: 'SET_USER',
+            payload: user
+        });
+      }
+    };
+    getUserFromLocalStorage();
+  }, []);
+
   return (
     <div className="container-fluid" style={{
       backgroundImage: 'url("https://media.istockphoto.com/id/177274717/photo/abstract-multimedia-background-composed-of-many-images-with-copy.jpg?s=612x612&w=0&k=20&c=V0G4Z-glNKzuI1ZvQMObi3_0PuxUHOqzur7d5LXB29U=")',
@@ -57,19 +73,6 @@ function Register() {
     <div className="w-screen h-screen">
     <div className="border-2 bg-mtgray p-4">
         <form className="border-2 bg-mtgray" onSubmit={handleRegister}>
-            {/* <div className="row mb-2">
-              <div className="col">
-                <label htmlFor="username" className="form-label text-white">Username:</label>
-                <input
-                    className="form-control form-control-sm"
-                    type="text"
-                    id="username"
-                    required
-                    onChange={(e) => handleChange("username", e.target.value)}
-                />
-            </div>
-            </div> */}
-
             <div className="row mb-2">
               <div className="col">
                 <label htmlFor="firstName" className="form-label text-white">First Name:</label>
@@ -120,16 +123,6 @@ function Register() {
             </div>
             </div>
 
-            {/* <div className="col">
-                <label htmlFor="password" className="form-label text-white">Password:</label>
-                <input
-                    className="form-control form-control-sm"
-                    type="password"
-                    id="password"
-                    required
-                    onChange={(e) => handleChange("password", e.target.value)}
-                />
-            </div> */}
             <div className="row mb-3">
               <div className="col">
                 <label htmlFor="passwordConf" className="form-label text-white">Confirm Password:</label>
@@ -179,7 +172,6 @@ function Register() {
         color: #CBB26A;
       }
   
-      
       `}
     </style>
    

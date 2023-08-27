@@ -5,7 +5,7 @@ import Image from "next/image";
 function Header() {
   return (
     <div className="container-fluid d-flex flex-column align-items-center text-center">
-        <Image className="img"
+        <Image className="rounded-img"
             src={MovieMixerLogo}
             alt="MovieMixer Logo"
             width={180}

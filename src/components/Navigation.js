@@ -22,17 +22,12 @@ const Navigation = () => {
             <ul className="navbar-nav">
             <li className="nav-item">
                 <a className="nav-link" href="/">Home</a>
-              </li><li className="nav-item">
-                <a className="nav-link" href="/form">Movie Finder</a>
               </li>
               <li className="nav-item">
                 <a className="nav-link" href="/login">Login</a>
               </li>
               <li className="nav-item">
                 <a className="nav-link" href="/register">Sign Up</a>
-              </li>
-              <li className="nav-item">
-                <a className="nav-link" href="/dashboard">Dashboard</a>
               </li>
             </ul>
           </div>
