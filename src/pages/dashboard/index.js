@@ -10,7 +10,7 @@ import { useGlobalState } from '../../context/GlobalState';
 
 
 function Dashboard() {
-  //----------------------------------Community Reviews Upcoming-------------------------------------------------------------------------------------
+  //---------------------Community Reviews Upcoming-------------------------------------------------------------------------------------
   // const [communityReviews, setCommunityReviews] = useState([]);
 
   // useEffect(() => {
@@ -27,12 +27,10 @@ function Dashboard() {
   //   };
 
   const [topMovies, setTopMovies] = useState([]);
-
   const { state, dispatch } = useGlobalState();
 
-  //----------------------------------Retrieve User Data for Login-------------------------------------------------------------------------------------
+//----------------------Retrieve User Data for Login-------------------------------------------------------------------------------------
   useEffect(() => {
-    // Function to retrieve user data from local storage
     const getUserFromLocalStorage = () => {
       const userData = localStorage.getItem('user');
       if (userData) {
@@ -51,9 +49,6 @@ function Dashboard() {
   return (
     <div className='container-fluid text-center bg-cover d-flex flex-column justify-content-center align-items-center' style={{
       backgroundImage: 'url("https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8bW92aWUlMjBiYWNrZ3JvdW5kfGVufDB8fDB8fHww&w=1000&q=80")',
-      // backgroundImage: 'url("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTbfUQqtN62oKB4gl6rzhNfOqwxX-Q74bUxZ0oTopsz1CM0DkLk0RhBlOYKbvGsGA4ojN0&usqp=CAU")',
-      // backgroundImage: 'url("https://t4.ftcdn.net/jpg/02/71/50/69/360_F_271506927_WWFfd92jDIIDx6DgMflakU14o5jRPgBm.jpg")',
-      // backgroundImage: 'url("https://st.depositphotos.com/1007879/3004/v/450/depositphotos_30049933-stock-illustration-blank-photo-video-template.jpg")',
       backgroundSize: 'cover',
       backgroundPosition: 'center',
       minHeight: '100vh',
@@ -85,61 +80,61 @@ function Dashboard() {
       </div>
       <style jsx>{`
 
-.logo-container {
-  margin-top: 5px;
-  margin-left: 50px;
-  margin-bottom: 20px;
-}     
-
-
-.container-fluid {
-  /* Set min-height to accommodate initial content */
-  min-height: 100vh; 
-   margin-top: 50px;
-  margin-bottom: 20px;
-  background-color: #000;
-  background-image: url("your-image-url-here");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-      .form-link {
-        margin-left: 50px;
-        font-size: 40px;
-        color: white;
-        text-decoration: underline;
-        transition: color 0.3s;
-      }
-      .form-link:hover {
-        color: #CBB26A;
-      }
-
-      @media (max-width: 768px) {
-        .movie-item {
-          flex: unset; /* Turn off the flex property for small screens */
-          width: 100%; /* Set width to occupy full container width */
-        }
-      }
-
-      @media (max-width: 393px) {
         .logo-container {
-          margin: 0 auto; /* Center the logo horizontally */
-          margin-top: 20px; /* Add a small top margin */
-        }
-      }
+          margin-top: 5px;
+          margin-left: 50px;
+          margin-bottom: 20px;
+        }     
 
-      @media (max-width: 393px) {
+
+        .container-fluid {
+          min-height: 100vh; 
+          margin-top: 50px;
+          margin-bottom: 20px;
+          background-color: #000;
+          background-image: url("your-image-url-here");
+          background-size: cover;
+          background-position: center;
+          background-repeat: no-repeat;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+        }
+
         .form-link {
-          margin-right: 60px;
+          margin-left: 50px;
+          font-size: 40px;
+          color: white;
+          text-decoration: underline;
+          transition: color 0.3s;
         }
-      }
+        .form-link:hover {
+          color: #CBB26A;
+        }
 
+        @media (max-width: 768px) {
+          .movie-item {
+            flex: unset; /* Turn off the flex property for small screens */
+            width: 100%; /* Set width to occupy full container width */
+          }
+        }
 
-    `}</style>
+        @media (max-width: 393px) {
+          .logo-container {
+            margin: 0 auto; /* Center the logo horizontally */
+            margin-top: 20px; /* Add a small top margin */
+          }
+        }
+
+        @media (max-width: 393px) {
+          .form-link {
+            margin-right: 60px;
+          }
+        }
+
+    `}
+    </style>
     </div>
   );
 }

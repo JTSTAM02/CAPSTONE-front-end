@@ -7,21 +7,20 @@ function CommunityReviews({ reviews }) {
   const [comment, setComment] = useState('');
   const [message, setMessage] = useState('');
 
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
     
-    try {
-      const response = await axios.post('/api/add_review/', {
-        movie_id: movieId,
-        rating: rating,
-        comment: comment
-      });
-      setMessage(response.data.message);
-    } catch (error) {
-      setMessage('Error adding review');
-    }
-  };
+//     try {
+//       const response = await axios.post('/api/add_review/', {
+//         movie_id: movieId,
+//         rating: rating,
+//         comment: comment
+//       });
+//       setMessage(response.data.message);
+//     } catch (error) {
+//       setMessage('Error adding review');
+//     }
+//   };
 
   return (
 

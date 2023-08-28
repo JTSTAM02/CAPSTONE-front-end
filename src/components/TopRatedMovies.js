@@ -51,40 +51,41 @@ function TopRatedMovies() {
       </ul>
       <style jsx>{`
 
-.btn-custom{
-  background-color: #1F5D57;
-  color: #CBB26A;
-}
-        .movie-grid {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 10px;
-          justify-content: space-between;
-          align-items: flex-start;
-          gap: 10px;
-        }
+    .btn-custom{
+        background-color: #1F5D57;
+        color: #CBB26A;
+    }
 
-        .movie-item {
-          flex: 0 1 calc(25% - 10px); /* Four items in a row, subtracting gap */
-  background-color: black;
-  border-radius: 5px;
-  text-align: center;
-  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
-  transition: overflow 0.3s;
-  position: relative;
-  oveflow: hidden;
-  heigt: 400px;
-        }
+    .movie-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 10px;
+    }
 
-        .movie-item:hover .movie-hover-content {
+    .movie-item {
+        flex: 0 1 calc(25% - 10px); /* Four items in a row, subtracting gap */
+        background-color: black;
+        border-radius: 5px;
+        text-align: center;
+        box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
+        transition: overflow 0.3s;
+        position: relative;
+        oveflow: hidden;
+        heigt: 400px;
+    }
+
+      .movie-item:hover .movie-hover-content {
           display: block;
-        }
+      }
 
-        .movie-content {
+      .movie-content {
           position: relative;
-        }
+      }
 
-        .movie-hover-content {
+      .movie-hover-content {
           display: none;
           position: absolute;
           top: 0;
@@ -97,41 +98,36 @@ function TopRatedMovies() {
           border-radius: 5px;
           box-sizing: border-box;
           transition: opacity 0.3s;
-        }
+      }
 
- 
-
-        .movie-item img {
+      .movie-item img {
           margin-bottom: 10px;
           width: 100%;
           height: 200px;
           max-height: 200px;
-        }
+      }
 
+  
+        /* Media Queries for Responsiveness
 
- 
- 
-        
-        /* Media query for screens below 950px width */
         @media (max-width: 950px) {
           .movie-item {
-            width: 25%; /* Set width to 25% to keep 4 items per row */
+            width: 25%;
           }
 
-        /* Media query for screens below 393px width */
         @media (max-width: 393px) {
           .movie-item h5 {
-            font-size: 4vw; /* Further adjust font size for smallest screens */
+            font-size: 4vw;
           }
         }
 
         @media (max-width: 950px) {
           .movie-grid {
-            justify-content: center; /* Center items horizontally */
+            justify-content: center;
           }
         
-          .movie-item {
-            flex: 0 1 calc(33.33% - 10px); /* Three items in a row, subtracting gap */
+        .movie-item {
+          flex: 0 1 calc(33.33% - 10px); /* Three items in a row, subtracting gap */
           }
         }
 
@@ -142,7 +138,8 @@ function TopRatedMovies() {
           }
         }
 
-      `}</style>
+      `}
+    </style>
     </div>
   );
 }
