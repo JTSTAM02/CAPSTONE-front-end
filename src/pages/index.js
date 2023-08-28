@@ -32,7 +32,7 @@ export default function Page() {
 
   //-------------------------------Get Random Movie Function------------------------------------------------
   const fetchRandomMovie = () => {
-    axios.get('http://localhost:8000/api/get_random_movie_family_friendly/')
+    axios.get('https://moviemixer.uk.r.appspot.com/api/get_random_movie_family_friendly/')
       .then(response => {
         const results = response.data.results;
         const randomIndex = Math.floor(Math.random() * results.length);
@@ -49,7 +49,7 @@ export default function Page() {
 
   //-------------------------------Get Trailer that Matches Random Movie------------------------------------------------
   const fetchMovieTrailers = (movieId) => {
-    axios.get(`http://localhost:8000/api/get_trailers/${movieId}`)
+    axios.get(`https://moviemixer.uk.r.appspot.com/api/get_trailers/${movieId}`)
       .then(response => {
         console.log(response.data)
         const trailers = response.data.results;

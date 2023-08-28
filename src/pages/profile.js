@@ -22,7 +22,7 @@ function Profile() {
   //------------------------Axios Get Request Backend Database------------------------
   useEffect(() => {
     const token = localStorage.getItem('access_token');
-    const url = 'http://127.0.0.1:8000/api/get_watchlist/';
+    const url = 'https://moviemixer.uk.r.appspot.com/api/get_watchlist/';
     const headers = {
       Authorization: `Bearer ${token}`,
     };

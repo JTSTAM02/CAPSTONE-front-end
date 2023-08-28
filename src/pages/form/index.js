@@ -55,7 +55,7 @@ const QAForm = () => {
 
   //------------------------Get Random Movie with Filtering via User Input-----------------------------------------
   const getRandomMovie = () => {
-    const url = "http://localhost:8000/api/get_random_movie/";
+    const url = "https://moviemixer.uk.r.appspot.com/api/get_random_movie/";
     const queryParams = {
       genre: userAnswers[0],
       startYear: userAnswers[1],
@@ -152,7 +152,7 @@ const QAForm = () => {
 
   //-------------------------Get Movie Trailer Based Upon Random Movie Id-------------------------------
   const fetchMovieTrailers = (movieId) => {
-    axios.get(`http://localhost:8000/api/get_trailers/${movieId}`)
+    axios.get(`https://moviemixer.uk.r.appspot.com/api/get_trailers/${movieId}`)
       .then(response => {
         const trailers = response.data.results;
 
@@ -186,7 +186,7 @@ const QAForm = () => {
     }
     console.log(data);
     try {
-      const response = await axios.post('http://127.0.0.1:8000/api/add_to_watchlist/', data, { headers })
+      const response = await axios.post('hhttps://moviemixer.uk.r.appspot.com/api/add_to_watchlist/', data, { headers })
       console.log(response);
       setWatchList(response.data);
       localStorage.setItem('watchList', JSON.stringify(response.data));

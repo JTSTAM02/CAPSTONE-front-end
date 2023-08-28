@@ -16,7 +16,7 @@ function TopRatedMovies() {
 
   function fetchTopMovies() {
     axios
-      .get('http://localhost:8000/api/get_top_movies/')
+      .get('https://moviemixer.uk.r.appspot.com/api/get_top_movies/')
       .then(response => {
         const results = response.data.results;
         setTopMovies(results);
