@@ -2,12 +2,10 @@ import Link from "next/link";
 import React, { useState, useEffect } from 'react';
 import Header from '/src/components/Header';
 import LoggedInNavigation from "/src/components/LoggedInNavbar";
-import RatingStarsComponent from 'react-rating-stars-component';
 import axios from "axios";
 import jwtDecode from 'jwt-decode';
 import { useGlobalState } from "../context/GlobalState";
-import authHeader from "../services/auth.headers";
-
+import { API_URL } from "../services/auth.constants";
 
 function Profile() {
   const [watchList, setWatchList] = useState([]);
@@ -22,7 +20,7 @@ function Profile() {
   //------------------------Axios Get Request Backend Database------------------------
   useEffect(() => {
     const token = localStorage.getItem('access_token');
-    const url = 'https://moviemixer.uk.r.appspot.com/api/get_watchlist/';
+    const url = `${API_URL}/get_watchlist/`;
     const headers = {
       Authorization: `Bearer ${token}`,
     };

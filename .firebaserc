@@ -1,5 +1,8 @@
 {
   "projects": {
-    "default": "movie-mixer-frontend"
-  }
+    "default": "awesome-inc-capstone",
+    "test": "awesome-inc-capstone"
+  },
+  "targets": {},
+  "etags": {}
 }

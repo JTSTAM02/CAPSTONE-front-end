@@ -8,7 +8,6 @@ import Image from 'next/image';
 import jwtDecode from 'jwt-decode';
 import { useGlobalState } from '../../context/GlobalState';
 
-
 function Dashboard() {
   //---------------------Community Reviews Upcoming-------------------------------------------------------------------------------------
   // const [communityReviews, setCommunityReviews] = useState([]);

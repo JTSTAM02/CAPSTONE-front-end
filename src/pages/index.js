@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import jwtDecode from 'jwt-decode';
 import { useGlobalState } from "../context/GlobalState";
+import { API_URL } from "../services/auth.constants";
 
 export default function Page() {
   const [randomMovie, setRandomMovie] = useState(null);
@@ -32,7 +33,7 @@ export default function Page() {
 
   //-------------------------------Get Random Movie Function------------------------------------------------
   const fetchRandomMovie = () => {
-    axios.get('https://moviemixer.uk.r.appspot.com/api/get_random_movie_family_friendly/')
+    axios.get(`${API_URL}/get_random_movie_family_friendly/`)
       .then(response => {
         const results = response.data.results;
         const randomIndex = Math.floor(Math.random() * results.length);
@@ -49,7 +50,7 @@ export default function Page() {
 
   //-------------------------------Get Trailer that Matches Random Movie------------------------------------------------
   const fetchMovieTrailers = (movieId) => {
-    axios.get(`https://moviemixer.uk.r.appspot.com/api/get_trailers/${movieId}`)
+    axios.get(`${API_URL}/get_trailers/${movieId}`)
       .then(response => {
         console.log(response.data)
         const trailers = response.data.results;

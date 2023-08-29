@@ -1,16 +1,25 @@
 {
   "hosting": {
-    "public": "build",
+    "source": ".",
     "ignore": [
       "firebase.json",
       "**/.*",
       "**/node_modules/**"
     ],
-    "rewrites": [
-      {
-        "source": "**",
-        "destination": "/index.html"
-      }
+    "frameworksBackend": {
+      "region": "us-east1"
+    }
+  },
+  "functions": {
+    "runtime": "nodejs16",
+    "source": ".",
+    "ignore": [
+      ".firebase/**",
+      ".firebaserc",
+      "firebase.json",
+      "**/node_modules/**",
+      "**/public/**",
+      "**/cache/**"
     ]
   }
 }

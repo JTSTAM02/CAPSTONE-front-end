@@ -4,6 +4,7 @@ import LoggedInNavigation from '../../components/LoggedInNavbar';
 import authHeader from '../../services/auth.headers';
 import jwtDecode from 'jwt-decode';
 import { useGlobalState } from '../../context/GlobalState';
+import { API_URL } from "../../services/auth.constants";
 
 const QAForm = () => {
   const [showRandomMovie, setShowRandomMovie] = useState(false);
@@ -55,7 +56,7 @@ const QAForm = () => {
 
   //------------------------Get Random Movie with Filtering via User Input-----------------------------------------
   const getRandomMovie = () => {
-    const url = "https://moviemixer.uk.r.appspot.com/api/get_random_movie/";
+    const url = `${API_URL}/get_random_movie/`;
     const queryParams = {
       genre: userAnswers[0],
       startYear: userAnswers[1],
@@ -152,7 +153,7 @@ const QAForm = () => {
 
   //-------------------------Get Movie Trailer Based Upon Random Movie Id-------------------------------
   const fetchMovieTrailers = (movieId) => {
-    axios.get(`https://moviemixer.uk.r.appspot.com/api/get_trailers/${movieId}`)
+    axios.get(`${API_URL}/get_trailers/${movieId}`)
       .then(response => {
         const trailers = response.data.results;
 

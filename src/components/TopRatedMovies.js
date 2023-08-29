@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import authHeader from '../services/auth.headers';
 import { useGlobalState } from '../context/GlobalState';
-
+import API_URL from '../services/auth.constants';
 
 function TopRatedMovies() {
   const [topMovies, setTopMovies] = useState([]);
@@ -16,7 +16,7 @@ function TopRatedMovies() {
 
   function fetchTopMovies() {
     axios
-      .get('https://moviemixer.uk.r.appspot.com/api/get_top_movies/')
+      .get(`${API_URL}/get_top_movies/`)
       .then(response => {
         const results = response.data.results;
         setTopMovies(results);

@@ -1,7 +1,15 @@
 {
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
+  "/about": "pages/about.html",
+  "/dashboard": "pages/dashboard.html",
+  "/dashboard/page": "pages/dashboard/page.html",
+  "/login": "pages/login.html",
+  "/login/page": "pages/login/page.html",
+  "/profile": "pages/profile.html",
+  "/register": "pages/register.html",
+  "/": "pages/index.html",
+  "/form": "pages/form.html",
   "/_document": "pages/_document.js",
-  "/": "pages/index.js",
-  "/form": "pages/form.js"
+  "/404": "pages/404.html"
 }
