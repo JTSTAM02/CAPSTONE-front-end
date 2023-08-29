@@ -1,8 +1,0 @@
-{
-  "projects": {
-    "default": "awesome-inc-capstone",
-    "test": "awesome-inc-capstone"
-  },
-  "targets": {},
-  "etags": {}
-}
