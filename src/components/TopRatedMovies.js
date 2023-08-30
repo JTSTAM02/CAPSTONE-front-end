@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import authHeader from '../services/auth.headers';
 import { useGlobalState } from '../context/GlobalState';
-import API_URL from '../services/auth.constants';
+import { API_URL } from '../services/auth.constants';
 
 function TopRatedMovies() {
   const [topMovies, setTopMovies] = useState([]);
