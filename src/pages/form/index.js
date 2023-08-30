@@ -187,7 +187,7 @@ const QAForm = () => {
     }
     console.log(data);
     try {
-      const response = await axios.post('hhttps://moviemixer.uk.r.appspot.com/api/add_to_watchlist/', data, { headers })
+      const response = await axios.post(`${API_URL}/add_to_watchlist/`, data, { headers })
       console.log(response);
       setWatchList(response.data);
       localStorage.setItem('watchList', JSON.stringify(response.data));
@@ -323,7 +323,7 @@ const QAForm = () => {
                   <img
                     style={{ width: '150px', height: '200px', margin: '20px' }}
                     src="/images/decades/2010s.webp"
-                    alt="2000's"
+                    alt="2010's"
                     className={userAnswers[currentQuestion] === "2010" ? "selected" : ""}
                     onClick={() => handleImageClick("2010")}
                   />
